@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Buyer {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  password  String?
+  createdAt DateTime @default(now())
+  orders    Order[] 
+
+
+  cart      Cart?    // Each buyer has one cart (optional initially)
+}
+
+model Vendor {
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String   @unique
+  password    String
+  companyName String
+  phone       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products    Product[]
+}
+
+model Product {
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String?    
+  image       String
+  price       Float
+  stock       Int
+  category    String?    
+  vendorId    Int
+  vendor      Vendor     @relation(fields: [vendorId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  orderItems OrderItem[]  
+  cartItems   CartItem[] // 👈 Reverse relation
+}
+
+model Cart {
+  id         Int        @id @default(autoincrement())
+  buyerId    Int        @unique
+  buyer      Buyer      @relation(fields: [buyerId], references: [id])
+  items      CartItem[] // 👈 Products in cart
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  cartId    Int
+  productId Int
+  quantity  Int      @default(1)
+
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId]) // Prevent same product multiple times in same cart
+}
+
+
+model Order {
+  id           Int      @id @default(autoincrement())
+  buyerId      Int
+  totalAmount  Float
+  paymentIntentId String?  // Stripe's PaymentIntent ID
+  status       String   @default("pending") // pending, paid, failed
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  buyer        Buyer     @relation(fields: [buyerId], references: [id])
+  items        OrderItem[]
+}
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  price     Float
+
+  // Relations
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+}
