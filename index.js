@@ -12,7 +12,7 @@ const paymentRoute = require('./routes/payment.route')
 
 
 const allowedOrigins = [
-  'https://i-shop31.vercel.app/', // ✅ Vercel live frontend URL
+  'https://i-shop31.vercel.app', // ✅ Vercel live frontend URL
   'http://localhost:5173'             // ✅ Local dev (optional)
 ];
 
