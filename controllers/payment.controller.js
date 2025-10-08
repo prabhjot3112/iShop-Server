@@ -39,10 +39,6 @@ const createOrderController = async (req, res) => {
       data: orderItemsData,
     });
 
-    // Optionally clear cart after order created
-    await prisma.cartItem.deleteMany({
-      where: { cartId: cart.id },
-    });
 
     return res.status(201).json({
       success: true,
