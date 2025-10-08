@@ -1,6 +1,20 @@
 const prisma = require('../utils/db')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+// GET -/:id
+const getBuyer = async(req,res,next) => {
+  try {
+    const buyerId = req.user.id;
+    const buyer = await prisma.buyer.findUnique({
+      where:{id:parseInt(buyerId)},
+      select:{id:true , email:true , name:true}
+    })
+    console.log('buyer is:',buyer)
+    res.status(200).json({buyer})
+  } catch (error) {
+    next(error)
+  }
+}
 // POST - /register
 const register = async(req,res,next)=>{
     const {name,email , password} = req.body;
@@ -78,6 +92,6 @@ const login = async (req, res, next) => {
 
 module.exports = {
     register,
-    login
+    login , getBuyer
 }
 

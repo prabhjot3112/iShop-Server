@@ -75,7 +75,7 @@ model Order {
   id              Int      @id @default(autoincrement())
   buyerId         Int
   totalAmount     Float
-  paymentIntentId String? // Stripe's PaymentIntent ID
+  paymentIntentId String   @unique // Stripe's PaymentIntent ID
   status          String   @default("pending") // pending, paid, failed
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

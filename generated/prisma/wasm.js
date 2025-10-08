@@ -35,12 +35,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.16.3
- * Query Engine version: bb420e667c1820a8c05a38023385f6cc7ef8e83a
+ * Prisma Client JS version: 6.17.0
+ * Query Engine version: c0aafc03b8ef6cdced8654b9a817999e02457d6a
  */
 Prisma.prismaVersion = {
-  client: "6.16.3",
-  engine: "bb420e667c1820a8c05a38023385f6cc7ef8e83a"
+  client: "6.17.0",
+  engine: "c0aafc03b8ef6cdced8654b9a817999e02457d6a"
 }
 
 Prisma.PrismaClientKnownRequestError = PrismaClientKnownRequestError;
@@ -218,13 +218,12 @@ const config = {
     "schemaEnvPath": "../../.env"
   },
   "relativePath": "../../prisma",
-  "clientVersion": "6.16.3",
-  "engineVersion": "bb420e667c1820a8c05a38023385f6cc7ef8e83a",
+  "clientVersion": "6.17.0",
+  "engineVersion": "c0aafc03b8ef6cdced8654b9a817999e02457d6a",
   "datasourceNames": [
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -233,8 +232,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../generated/prisma\"\n  binaryTargets = [\"native\", \"rhel-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider  = \"postgresql\"\n  url       = env(\"DATABASE_URL\")\n  directUrl = env(\"DIRECT_URL\")\n}\n\nmodel Buyer {\n  id        Int      @id @default(autoincrement())\n  email     String   @unique\n  name      String?\n  password  String?\n  createdAt DateTime @default(now())\n  orders    Order[]\n\n  cart Cart? // Each buyer has one cart (optional initially)\n}\n\nmodel Vendor {\n  id          Int      @id @default(autoincrement())\n  name        String\n  email       String   @unique\n  password    String\n  companyName String\n  phone       String?\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  products Product[]\n}\n\nmodel Product {\n  id          Int         @id @default(autoincrement())\n  name        String\n  description String?\n  image       String\n  price       Float\n  stock       Int\n  category    String?\n  vendorId    Int\n  vendor      Vendor      @relation(fields: [vendorId], references: [id])\n  createdAt   DateTime    @default(now())\n  updatedAt   DateTime    @updatedAt\n  orderItems  OrderItem[]\n  cartItems   CartItem[] // 👈 Reverse relation\n}\n\nmodel Cart {\n  id        Int        @id @default(autoincrement())\n  buyerId   Int        @unique\n  buyer     Buyer      @relation(fields: [buyerId], references: [id])\n  items     CartItem[] // 👈 Products in cart\n  createdAt DateTime   @default(now())\n  updatedAt DateTime   @updatedAt\n}\n\nmodel CartItem {\n  id        Int @id @default(autoincrement())\n  cartId    Int\n  productId Int\n  quantity  Int @default(1)\n\n  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)\n  product Product @relation(fields: [productId], references: [id])\n\n  @@unique([cartId, productId]) // Prevent same product multiple times in same cart\n}\n\nmodel Order {\n  id              Int      @id @default(autoincrement())\n  buyerId         Int\n  totalAmount     Float\n  paymentIntentId String? // Stripe's PaymentIntent ID\n  status          String   @default(\"pending\") // pending, paid, failed\n  createdAt       DateTime @default(now())\n  updatedAt       DateTime @updatedAt\n\n  // Relations\n  buyer Buyer       @relation(fields: [buyerId], references: [id])\n  items OrderItem[]\n}\n\nmodel OrderItem {\n  id        Int   @id @default(autoincrement())\n  orderId   Int\n  productId Int\n  quantity  Int\n  price     Float\n\n  // Relations\n  order   Order   @relation(fields: [orderId], references: [id])\n  product Product @relation(fields: [productId], references: [id])\n}\n",
-  "inlineSchemaHash": "fb0158eeb40fd56d48312def70f5d9c83bd0864a42d5f4221f05974b289b7cbe",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../generated/prisma\"\n  binaryTargets = [\"native\", \"rhel-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider  = \"postgresql\"\n  url       = env(\"DATABASE_URL\")\n  directUrl = env(\"DIRECT_URL\")\n}\n\nmodel Buyer {\n  id        Int      @id @default(autoincrement())\n  email     String   @unique\n  name      String?\n  password  String?\n  createdAt DateTime @default(now())\n  orders    Order[]\n\n  cart Cart? // Each buyer has one cart (optional initially)\n}\n\nmodel Vendor {\n  id          Int      @id @default(autoincrement())\n  name        String\n  email       String   @unique\n  password    String\n  companyName String\n  phone       String?\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  products Product[]\n}\n\nmodel Product {\n  id          Int         @id @default(autoincrement())\n  name        String\n  description String?\n  image       String\n  price       Float\n  stock       Int\n  category    String?\n  vendorId    Int\n  vendor      Vendor      @relation(fields: [vendorId], references: [id])\n  createdAt   DateTime    @default(now())\n  updatedAt   DateTime    @updatedAt\n  orderItems  OrderItem[]\n  cartItems   CartItem[] // 👈 Reverse relation\n}\n\nmodel Cart {\n  id        Int        @id @default(autoincrement())\n  buyerId   Int        @unique\n  buyer     Buyer      @relation(fields: [buyerId], references: [id])\n  items     CartItem[] // 👈 Products in cart\n  createdAt DateTime   @default(now())\n  updatedAt DateTime   @updatedAt\n}\n\nmodel CartItem {\n  id        Int @id @default(autoincrement())\n  cartId    Int\n  productId Int\n  quantity  Int @default(1)\n\n  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)\n  product Product @relation(fields: [productId], references: [id])\n\n  @@unique([cartId, productId]) // Prevent same product multiple times in same cart\n}\n\nmodel Order {\n  id              Int      @id @default(autoincrement())\n  buyerId         Int\n  totalAmount     Float\n  paymentIntentId String   @unique // Stripe's PaymentIntent ID\n  status          String   @default(\"pending\") // pending, paid, failed\n  createdAt       DateTime @default(now())\n  updatedAt       DateTime @updatedAt\n\n  // Relations\n  buyer Buyer       @relation(fields: [buyerId], references: [id])\n  items OrderItem[]\n}\n\nmodel OrderItem {\n  id        Int   @id @default(autoincrement())\n  orderId   Int\n  productId Int\n  quantity  Int\n  price     Float\n\n  // Relations\n  order   Order   @relation(fields: [orderId], references: [id])\n  product Product @relation(fields: [productId], references: [id])\n}\n",
+  "inlineSchemaHash": "e65cc958c7dcabf86b9d59651cc6f26f1d88edc3d68f913a447998529669cb2e",
   "copyEngine": true
 }
 config.dirname = '/'

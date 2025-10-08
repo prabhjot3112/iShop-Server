@@ -203,6 +203,19 @@ const searchProduct = async (req, res, next) => {
   }
 };
 
+const getProductByVendor = async(req,res,next) => {
+  try {
+    const {vendorId} = req.params;
+    const products = await prisma.product.findMany({
+      where:{
+        vendorId:parseInt(vendorId)
+      }
+    })
+    console.log('products from this vendor are:',products)
+    res.status(200).json({products})
+  } catch (error) {
+    next(error)
+  }
+}
 
-
-module.exports = { addProduct , searchProduct , productDetails , getRandomProducts};
+module.exports = { addProduct , searchProduct , productDetails , getRandomProducts , getProductByVendor};

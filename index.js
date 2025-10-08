@@ -9,6 +9,7 @@ const vendorRoute = require('./routes/vendor.route')
 const productRoute = require('./routes/products.route')
 const cartRoute = require('./routes/cart.route')
 const paymentRoute = require('./routes/payment.route')
+const orderRoute = require('./routes/order.route')
 
 
 const allowedOrigins = [
@@ -27,6 +28,7 @@ app.use('/api/vendor',vendorRoute)
 app.use('/api/products',productRoute)
 app.use('/api/cart',cartRoute)
 app.use('/api/payment',paymentRoute)
+app.use('/api/orders',orderRoute)
 app.use(errorMiddleware)
 
 app.listen(3001,() =>{

@@ -294,8 +294,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.16.3
-   * Query Engine version: bb420e667c1820a8c05a38023385f6cc7ef8e83a
+   * Prisma Client JS version: 6.17.0
+   * Query Engine version: c0aafc03b8ef6cdced8654b9a817999e02457d6a
    */
   export type PrismaVersion = {
     client: string
@@ -7467,7 +7467,7 @@ export namespace Prisma {
     id: number
     buyerId: number
     totalAmount: number
-    paymentIntentId: string | null
+    paymentIntentId: string
     status: string
     createdAt: Date
     updatedAt: Date
@@ -7560,7 +7560,7 @@ export namespace Prisma {
       id: number
       buyerId: number
       totalAmount: number
-      paymentIntentId: string | null
+      paymentIntentId: string
       status: string
       createdAt: Date
       updatedAt: Date
@@ -10075,7 +10075,7 @@ export namespace Prisma {
     id?: IntFilter<"Order"> | number
     buyerId?: IntFilter<"Order"> | number
     totalAmount?: FloatFilter<"Order"> | number
-    paymentIntentId?: StringNullableFilter<"Order"> | string | null
+    paymentIntentId?: StringFilter<"Order"> | string
     status?: StringFilter<"Order"> | string
     createdAt?: DateTimeFilter<"Order"> | Date | string
     updatedAt?: DateTimeFilter<"Order"> | Date | string
@@ -10087,7 +10087,7 @@ export namespace Prisma {
     id?: SortOrder
     buyerId?: SortOrder
     totalAmount?: SortOrder
-    paymentIntentId?: SortOrderInput | SortOrder
+    paymentIntentId?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -10097,24 +10097,24 @@ export namespace Prisma {
 
   export type OrderWhereUniqueInput = Prisma.AtLeast<{
     id?: number
+    paymentIntentId?: string
     AND?: OrderWhereInput | OrderWhereInput[]
     OR?: OrderWhereInput[]
     NOT?: OrderWhereInput | OrderWhereInput[]
     buyerId?: IntFilter<"Order"> | number
     totalAmount?: FloatFilter<"Order"> | number
-    paymentIntentId?: StringNullableFilter<"Order"> | string | null
     status?: StringFilter<"Order"> | string
     createdAt?: DateTimeFilter<"Order"> | Date | string
     updatedAt?: DateTimeFilter<"Order"> | Date | string
     buyer?: XOR<BuyerScalarRelationFilter, BuyerWhereInput>
     items?: OrderItemListRelationFilter
-  }, "id">
+  }, "id" | "paymentIntentId">
 
   export type OrderOrderByWithAggregationInput = {
     id?: SortOrder
     buyerId?: SortOrder
     totalAmount?: SortOrder
-    paymentIntentId?: SortOrderInput | SortOrder
+    paymentIntentId?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -10132,7 +10132,7 @@ export namespace Prisma {
     id?: IntWithAggregatesFilter<"Order"> | number
     buyerId?: IntWithAggregatesFilter<"Order"> | number
     totalAmount?: FloatWithAggregatesFilter<"Order"> | number
-    paymentIntentId?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    paymentIntentId?: StringWithAggregatesFilter<"Order"> | string
     status?: StringWithAggregatesFilter<"Order"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
@@ -10527,7 +10527,7 @@ export namespace Prisma {
 
   export type OrderCreateInput = {
     totalAmount: number
-    paymentIntentId?: string | null
+    paymentIntentId: string
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -10539,7 +10539,7 @@ export namespace Prisma {
     id?: number
     buyerId: number
     totalAmount: number
-    paymentIntentId?: string | null
+    paymentIntentId: string
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -10548,7 +10548,7 @@ export namespace Prisma {
 
   export type OrderUpdateInput = {
     totalAmount?: FloatFieldUpdateOperationsInput | number
-    paymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentIntentId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10560,7 +10560,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     buyerId?: IntFieldUpdateOperationsInput | number
     totalAmount?: FloatFieldUpdateOperationsInput | number
-    paymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentIntentId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10571,7 +10571,7 @@ export namespace Prisma {
     id?: number
     buyerId: number
     totalAmount: number
-    paymentIntentId?: string | null
+    paymentIntentId: string
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -10579,7 +10579,7 @@ export namespace Prisma {
 
   export type OrderUpdateManyMutationInput = {
     totalAmount?: FloatFieldUpdateOperationsInput | number
-    paymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentIntentId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10589,7 +10589,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     buyerId?: IntFieldUpdateOperationsInput | number
     totalAmount?: FloatFieldUpdateOperationsInput | number
-    paymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentIntentId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11709,7 +11709,7 @@ export namespace Prisma {
 
   export type OrderCreateWithoutBuyerInput = {
     totalAmount: number
-    paymentIntentId?: string | null
+    paymentIntentId: string
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -11719,7 +11719,7 @@ export namespace Prisma {
   export type OrderUncheckedCreateWithoutBuyerInput = {
     id?: number
     totalAmount: number
-    paymentIntentId?: string | null
+    paymentIntentId: string
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -11777,7 +11777,7 @@ export namespace Prisma {
     id?: IntFilter<"Order"> | number
     buyerId?: IntFilter<"Order"> | number
     totalAmount?: FloatFilter<"Order"> | number
-    paymentIntentId?: StringNullableFilter<"Order"> | string | null
+    paymentIntentId?: StringFilter<"Order"> | string
     status?: StringFilter<"Order"> | string
     createdAt?: DateTimeFilter<"Order"> | Date | string
     updatedAt?: DateTimeFilter<"Order"> | Date | string
@@ -12321,7 +12321,7 @@ export namespace Prisma {
 
   export type OrderCreateWithoutItemsInput = {
     totalAmount: number
-    paymentIntentId?: string | null
+    paymentIntentId: string
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -12332,7 +12332,7 @@ export namespace Prisma {
     id?: number
     buyerId: number
     totalAmount: number
-    paymentIntentId?: string | null
+    paymentIntentId: string
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -12388,7 +12388,7 @@ export namespace Prisma {
 
   export type OrderUpdateWithoutItemsInput = {
     totalAmount?: FloatFieldUpdateOperationsInput | number
-    paymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentIntentId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12399,7 +12399,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     buyerId?: IntFieldUpdateOperationsInput | number
     totalAmount?: FloatFieldUpdateOperationsInput | number
-    paymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentIntentId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12446,7 +12446,7 @@ export namespace Prisma {
   export type OrderCreateManyBuyerInput = {
     id?: number
     totalAmount: number
-    paymentIntentId?: string | null
+    paymentIntentId: string
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -12454,7 +12454,7 @@ export namespace Prisma {
 
   export type OrderUpdateWithoutBuyerInput = {
     totalAmount?: FloatFieldUpdateOperationsInput | number
-    paymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentIntentId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12464,7 +12464,7 @@ export namespace Prisma {
   export type OrderUncheckedUpdateWithoutBuyerInput = {
     id?: IntFieldUpdateOperationsInput | number
     totalAmount?: FloatFieldUpdateOperationsInput | number
-    paymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentIntentId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12474,7 +12474,7 @@ export namespace Prisma {
   export type OrderUncheckedUpdateManyWithoutBuyerInput = {
     id?: IntFieldUpdateOperationsInput | number
     totalAmount?: FloatFieldUpdateOperationsInput | number
-    paymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentIntentId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

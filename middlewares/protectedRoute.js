@@ -16,11 +16,13 @@ const vendorProtected = (req, res, next) => {
 
     // Attach user data to req object
     req.user = decoded;
-    req.body.role = 'vendor'
+    console.log('decoded is:',decoded)
+    
 
     next(); // ✅ allow the request to continue
   } catch (err) {
-    return res.status(401).json({ error: 'Invalid or expired token' });
+    console.log('error is:',err)
+    next(err)
   }
 };
 

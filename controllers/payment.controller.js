@@ -1,25 +1,107 @@
-// Route: POST /api/create-payment-intent
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const express = require("express");
+const router = express.Router();
+const prisma = require('../utils/db');
 
-const paymentIntent =  async (req, res) => {
-  const { amount } = req.body; // amount in cents (i.e. 10.99 => 1099)
-
+const { createOrder } = require("../services/orderService");
+const crypto = require('crypto')
+// Middleware must set req.user from Supabase token
+const createOrderController = async (req, res) => {
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount,
-      currency: 'usd',
-      automatic_payment_methods: {
-        enabled: true,
-      },
+    const buyerId = req.user.id;
+    const { totalAmount } = req.body;
+
+    const { razorpayOrder, dbOrder } = await createOrder({ buyerId, totalAmount });
+
+    // Fetch cart items for buyer
+    const cart = await prisma.cart.findUnique({
+      where: { buyerId },
+      include: { items: {
+        include:{
+          product:true
+        }
+      } }, // assuming a relation "items"
     });
 
-    res.send({
-      clientSecret: paymentIntent.client_secret,
+    if (!cart || !cart.items.length) {
+      return res.status(400).json({ error: "Cart is empty" });
+    }
+    console.log('cartItems are:',cart.items)
+    
+    // Create order items from cart
+    const orderItemsData = cart.items.map(item => ({
+      orderId: dbOrder.id,
+      productId: item.productId,
+      quantity: item.quantity,
+      price: item.product.price,
+    }));
+
+    await prisma.orderItem.createMany({
+      data: orderItemsData,
     });
-  } catch (error) {
-    res.status(500).send({ error: error.message });
+
+    // Optionally clear cart after order created
+    await prisma.cartItem.deleteMany({
+      where: { cartId: cart.id },
+    });
+
+    return res.status(201).json({
+      success: true,
+      razorpayOrder,
+      dbOrder,
+    });
+  } catch (err) {
+    console.error("Error creating order:", err);
+    return res.status(500).json({ error: "Failed to create order" });
   }
-}
-module.exports = {
-    paymentIntent
-}
+};
+
+
+const verifyPayment =   async (req, res , next) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+    // Generate expected signature
+    const body = `${razorpay_order_id}|${razorpay_payment_id}`;
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(body.toString())
+      .digest("hex");
+
+    // Compare signatures
+    if (expectedSignature !== razorpay_signature) { return res.status(400).json({ success: false, message: "Invalid signature" });
+    }
+
+    // Signature is valid – update order in DB
+    const order = await prisma.order.update({
+      where: {
+        paymentIntentId: razorpay_order_id,
+      },
+      data: {
+        status: "paid",
+      },
+      
+    });
+    console.log('the order is:',order)
+    // remove product from cart
+    const buyerId = req.user.id;
+
+await prisma.cart.deleteMany({
+  where: {
+    buyerId:parseInt(buyerId),
+  },
+});
+// Continue with your response
+return res.status(200).json({
+  success: true,
+  message: "Payment verified and cart cleared",
+  order,
+});
+     } catch (error) {
+    console.error("Verification failed:", error);
+    next(error)
+  }
+};
+  module.exports = {
+    createOrderController ,
+    verifyPayment
+  }

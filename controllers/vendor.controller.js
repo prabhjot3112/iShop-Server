@@ -2,6 +2,21 @@ const prisma = require('../utils/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken')
 
+
+
+const getVendor = async(req,res,next) => {
+  try {
+    const vendorId = req.user.id;
+    const vendor = await prisma.vendor.findUnique({
+      where:{id:parseInt(vendorId)},
+      select:{id:true , email:true , name:true}
+    })
+    console.log('vendor  is:',vendor )
+    res.status(200).json({vendor})
+  } catch (error) {
+    next(error)
+  }
+}
 const registerVendor = async (req, res, next) => {
   const { name, email, password, companyName, phone } = req.body;
     if(!name){
@@ -86,4 +101,4 @@ return res.json({
     }
 }
 
-module.exports = { registerVendor , loginVendor};
+module.exports = { registerVendor , loginVendor , getVendor};
