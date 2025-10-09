@@ -49,25 +49,33 @@ const getOrders = async (req, res, next) => {
 const getOrdersForVendor = async(req,res,next) => {
   try {
     const vendorId = req.user.id;
-    const orderItems = await prisma.orderItem.findMany({
+  const orderItems = await prisma.orderItem.findMany({
   where: {
     product: {
       vendorId: vendorId
-    }
+    },
   },
   include: {
     order: {
       include: {
         buyer: {
-          select:{
-          name:true,email:true,id:true
+          select: {
+            name: true,
+            email: true,
+            id: true
           }
-        }, // ✅ this works because Order has a relation to Buyer
+        },
       }
     },
     product: true
+  },
+  orderBy: {
+    product: {
+      createdAt: 'desc' // ✅ this sorts by product's creation time
+    }
   }
 });
+
 
     res.status(200).json({message:"Success",orderItems})
   } catch (error) {

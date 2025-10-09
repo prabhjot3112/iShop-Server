@@ -75,7 +75,7 @@ model Order {
   id              Int      @id @default(autoincrement())
   buyerId         Int
   totalAmount     Float
-  paymentIntentId String   @unique // Stripe's PaymentIntent ID
+  paymentIntentId String   @unique
   status          String   @default("pending") // pending, paid, failed
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -95,4 +95,13 @@ model OrderItem {
   // Relations
   order   Order   @relation(fields: [orderId], references: [id])
   product Product @relation(fields: [productId], references: [id])
+}
+
+model NotificationSubscription {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  role      String
+  endpoint  String   @unique
+  keys      Json
+  createdAt DateTime @default(now())
 }

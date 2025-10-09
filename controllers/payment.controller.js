@@ -3,7 +3,8 @@ const router = express.Router();
 const prisma = require('../utils/db');
 
 const { createOrder } = require("../services/orderService");
-const crypto = require('crypto')
+const crypto = require('crypto');
+const sendPushNotification = require("../utils/push");
 // Middleware must set req.user from Supabase token
 const createOrderController = async (req, res) => {
   try {
@@ -77,6 +78,50 @@ const verifyPayment =   async (req, res , next) => {
       },
       
     });
+    // ✅ Notify Buyer
+    const buyerSubscription = await prisma.notificationSubscription.findFirst({
+      where: {
+        userId: req.user.id,
+        role: 'buyer'
+      }
+    });
+    if (buyerSubscription) {
+      await sendPushNotification(buyerSubscription, {
+        title: "Order Confirmed 🎉",
+        body: "Your order has been successfully placed.",
+      })
+    }
+
+    // ✅ Notify Vendor(s)
+    const orderItems = await prisma.orderItem.findMany({
+      where: { orderId: order.id },
+      include: { product: true },
+    });
+
+    const notifiedVendors = new Set();
+
+    for (const item of orderItems) {
+      const vendorId = item.product.vendorId;
+      if (!notifiedVendors.has(vendorId)) {
+        const vendorSubscription = await prisma.notificationSubscription.findFirst({
+          where: {
+            userId: vendorId,
+            role: 'vendor'
+          }
+        });
+
+        if (vendorSubscription) {
+          await sendPushNotification(vendorSubscription, {
+            title: "New Order 📦",
+            body: `One of your products has been ordered!`,
+          });
+        }
+
+        notifiedVendors.add(vendorId);
+      }
+    }
+
+
     console.log('the order is:',order)
     // remove product from cart
     const buyerId = req.user.id;
