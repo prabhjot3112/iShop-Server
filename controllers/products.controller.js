@@ -7,6 +7,7 @@ const uploadImageToCloudinary = (buffer) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       { folder: 'products' },
+      
       (error, result) => {
         if (error) return reject(error);
         console.log('secure_url',result.secure_url)
@@ -17,8 +18,28 @@ const uploadImageToCloudinary = (buffer) => {
   });
 };
 
+const deleteImageFromCloudinary = (publicId) => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.destroy(publicId, (error, result) => {
+      if (error) return reject(error);
+      resolve(result);
+    });
+  });
+};
+
+const extractPublicIdFromCloudinaryImage = (url) => {
+  const parts = url.split('/');
+  const filename = parts[parts.length - 1]; // e.g. "image12345.png"
+  const publicIdWithExtension = filename.split('.')[0]; // e.g. "image12345"
+  const folder = parts[parts.length - 2]; // e.g. "products"
+  return `${folder}/${publicIdWithExtension}`; // e.g. "products/image12345"
+};
+
+
+
 const addProduct = async (req, res, next) => {
   try {
+    console.log('req.body is:',req.body)
     const { name, description, price, stock, category } = req.body;
 
     // ✅ Use vendorId from the authenticated token, not from the body
@@ -64,6 +85,7 @@ const addProduct = async (req, res, next) => {
       },
     });
 
+
     return res.status(201).json({
       message: 'Product added successfully',
       product,
@@ -73,6 +95,79 @@ const addProduct = async (req, res, next) => {
     next(err);
   }
 };
+
+const editProduct = async (req, res, next) => {
+  try {
+    const { name, description, price, stock, category } = req.body;
+    const { id } = req.params;
+
+    const vendorId = req.user?.id;
+    const role = req.user?.role;
+
+    // ✅ Role check
+    if (role !== 'vendor') {
+      return res.status(403).json({ error: 'Only vendors can edit products' });
+    }
+
+    // ✅ Validate required fields
+    if (!name || !price || !stock) {
+      return res.status(400).json({ error: 'Missing required fields (name, price, stock)' });
+    }
+
+    // ✅ Check if vendor exists
+    const vendor = await prisma.vendor.findUnique({
+      where: { id: vendorId },
+    });
+    if (!vendor) {
+      return res.status(404).json({ error: 'Vendor not found' });
+    }
+
+    // ✅ Check if product exists and belongs to the vendor
+    const existingProduct = await prisma.product.findUnique({
+      where: { id: parseInt(id) },
+    });
+    if (!existingProduct || existingProduct.vendorId !== vendorId) {
+      return res.status(404).json({ error: 'Product not found or access denied' });
+    }
+
+    // ✅ Handle optional image upload
+    let imageUrl = existingProduct.image;
+
+    if (req.file && req.file.buffer) {
+      // Upload new image
+      imageUrl = await uploadImageToCloudinary(req.file.buffer);
+
+      // Delete old image from Cloudinary
+      const publicId = extractPublicIdFromCloudinaryImage(existingProduct.image);
+      if (publicId) {
+        await deleteImageFromCloudinary(publicId);
+      }
+    }
+
+    // ✅ Update product in database
+    const updatedProduct = await prisma.product.update({
+      where: { id: parseInt(id) },
+      data: {
+        name,
+        description,
+        image: imageUrl,
+        price: parseFloat(price),
+        stock: parseInt(stock),
+        category,
+      },
+    });
+
+    return res.status(200).json({
+      message: 'Product updated successfully',
+      product: updatedProduct,
+    });
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+
 
  const getRandomProducts = async (req, res) => {
   const limit = 10;
@@ -205,10 +300,13 @@ const searchProduct = async (req, res, next) => {
 
 const getProductByVendor = async(req,res,next) => {
   try {
-    const {vendorId} = req.params;
+    const vendorId = req.user.id
     const products = await prisma.product.findMany({
       where:{
         vendorId:parseInt(vendorId)
+      },
+      orderBy:{
+        updatedAt:"desc"
       }
     })
     console.log('products from this vendor are:',products)
@@ -218,4 +316,45 @@ const getProductByVendor = async(req,res,next) => {
   }
 }
 
-module.exports = { addProduct , searchProduct , productDetails , getRandomProducts , getProductByVendor};
+const deleteProduct = async (req, res, next) => {
+  try {
+    const vendorId = req.user.id;
+    const { productId } = req.params;
+
+    if (!productId) {
+      return res.status(400).json({ message: 'Please provide the Product ID' });
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { id: parseInt(productId) }
+    });
+
+    if (!product || product.vendorId !== vendorId) {
+      return res.status(404).json({ error: 'Product not found or access denied' });
+    }
+
+    // 🛑 Check if this product is part of any order
+    const relatedOrderItem = await prisma.orderItem.findFirst({
+      where: { productId: parseInt(productId) },
+    });
+
+    if (relatedOrderItem) {
+      return res.status(400).json({
+        error: 'Cannot delete this product as it is part of an existing order.',
+      });
+    }
+
+    // ✅ Safe to delete
+    await prisma.product.delete({
+      where: { id: parseInt(productId) },
+    });
+
+    res.status(200).json({ message: 'Success' });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+module.exports = { addProduct , searchProduct , productDetails , editProduct ,  getRandomProducts , getProductByVendor , deleteProduct};

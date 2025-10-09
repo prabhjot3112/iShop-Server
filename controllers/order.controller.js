@@ -46,6 +46,35 @@ const getOrders = async (req, res, next) => {
   }
 };
 
+const getOrdersForVendor = async(req,res,next) => {
+  try {
+    const vendorId = req.user.id;
+    const orderItems = await prisma.orderItem.findMany({
+  where: {
+    product: {
+      vendorId: vendorId
+    }
+  },
+  include: {
+    order: {
+      include: {
+        buyer: {
+          select:{
+          name:true,email:true,id:true
+          }
+        }, // ✅ this works because Order has a relation to Buyer
+      }
+    },
+    product: true
+  }
+});
+
+    res.status(200).json({message:"Success",orderItems})
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
-    getOrder , getOrders
+    getOrder , getOrders , getOrdersForVendor
 }

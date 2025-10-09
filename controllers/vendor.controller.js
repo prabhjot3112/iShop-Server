@@ -17,6 +17,71 @@ const getVendor = async(req,res,next) => {
     next(error)
   }
 }
+const getSalesSummary = async (req, res, next) => {
+  try {
+    const vendorId = req.user.id;
+
+    // Fetch all OrderItems that belong to this vendor's products
+    const orderItems = await prisma.orderItem.findMany({
+      where: {
+        product: {
+          vendorId: vendorId,
+        },
+        order: {
+          status: 'paid', // only consider paid orders
+        },
+      },
+      include: {
+        product: true,
+        order: true,
+      },
+    });
+
+    // Initialize summary variables
+    let totalRevenue = 0;
+    let totalOrders = new Set();
+    let totalUnitsSold = 0;
+    const productSalesMap = {};
+
+    for (const item of orderItems) {
+      totalRevenue += item.price * item.quantity;
+      totalUnitsSold += item.quantity;
+      totalOrders.add(item.orderId);
+
+      const productId = item.productId;
+      const productName = item.product.name;
+      if (!productSalesMap[productId]) {
+        productSalesMap[productId] = {
+          name: productName,
+          quantitySold: 0,
+          revenue: 0,
+        };
+      }
+      productSalesMap[productId].quantitySold += item.quantity;
+      productSalesMap[productId].revenue += item.price * item.quantity;
+    }
+
+    // Optional: Get most sold product
+    const mostSoldProduct = Object.entries(productSalesMap)
+      .sort((a, b) => b[1].quantitySold - a[1].quantitySold)[0]?.[1] || null;
+
+    res.status(200).json({
+      success: true,
+      summary: {
+        totalOrders: totalOrders.size,
+        totalRevenue,
+        totalUnitsSold,
+        mostSoldProduct,
+        productBreakdown: productSalesMap, // useful for charting
+      },
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 const registerVendor = async (req, res, next) => {
   const { name, email, password, companyName, phone } = req.body;
     if(!name){
@@ -101,4 +166,4 @@ return res.json({
     }
 }
 
-module.exports = { registerVendor , loginVendor , getVendor};
+module.exports = { registerVendor , loginVendor , getVendor , getSalesSummary};
