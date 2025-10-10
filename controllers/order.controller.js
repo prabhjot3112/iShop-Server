@@ -1,4 +1,5 @@
 const prisma = require('../utils/db');
+const sendPushNotification = require('../utils/push');
 
 // GET /orders/:id
 const getOrder = async (req, res , next) => {
@@ -46,6 +47,91 @@ const getOrders = async (req, res, next) => {
   }
 };
 
+
+const updateOrderItemStatus = async (req, res, next) => {
+  try {
+    const vendorId = req.user.id;
+    const { orderItemId, status } = req.body;
+
+    const orderItem = await prisma.orderItem.findUnique({
+      where: { id: parseInt(orderItemId) },
+      include: {
+        product: true,
+        order: true, // Include order to access buyer info
+      },
+    });
+
+    if (!orderItem) {
+      return res.status(404).json({ message: "Order item not found" });
+    }
+
+    if (orderItem.product.vendorId !== vendorId) {
+      return res.status(403).json({ message: "You are not authorized to update this item" });
+    }
+
+    const updatedItem = await prisma.orderItem.update({
+      where: { id: parseInt(orderItemId) },
+      data: { status },
+    });
+
+    // Notify buyer
+    const buyerId = orderItem.order.buyerId; // assuming your order has a buyerId
+
+    const buyerSubscription = await prisma.notificationSubscription.findFirst({
+      where: { userId: buyerId, role: 'buyer' },
+    });
+
+    if (buyerSubscription) {
+      const statusMessages = {
+        pending: "Your order is pending confirmation.",
+        packed: "Your order has been packed.",
+        dispatched: "Your order is on its way.",
+        "out-for-delivery": `Your order [${orderItem.product.name}] is out for delivery!`,
+        delivered: "Your order has been delivered. Enjoy!",
+        cancelled: "Your order has been cancelled.",
+      };
+
+      await sendPushNotification(buyerSubscription, {
+        title: `Order Status: ${status.toUpperCase()}`,
+        body: statusMessages[status] || "Your order status has been updated.",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Order item status updated",
+      item: updatedItem,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const trackOrder = async(req,res,next) => {
+  try {
+    const buyerId = req.user.id;
+    const {orderId} = req.params;
+    const orderItem =await prisma.orderItem.findUnique({
+      where:{id:parseInt(orderId)},
+      include:{
+        order:true , 
+        product:{
+          select:{
+            name:true , image:true , id:true , category:true
+          }
+        }
+      }
+    })
+    if(orderItem.order.buyerId == buyerId)
+  return  res.status(200).json({message:"Success",orderItem})
+else return res.status(404).json({message:'You are not authorized to track this order'})
+
+  } catch (error) {
+    next(error)
+  }
+} 
+
+
+
 const getOrdersForVendor = async(req,res,next) => {
   try {
     const vendorId = req.user.id;
@@ -70,7 +156,7 @@ const getOrdersForVendor = async(req,res,next) => {
     product: true
   },
   orderBy: {
-    product: {
+    order: {
       createdAt: 'desc' // ✅ this sorts by product's creation time
     }
   }
@@ -84,5 +170,5 @@ const getOrdersForVendor = async(req,res,next) => {
 }
 
 module.exports = {
-    getOrder , getOrders , getOrdersForVendor
+    getOrder , getOrders , getOrdersForVendor , updateOrderItemStatus , trackOrder
 }

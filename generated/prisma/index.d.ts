@@ -8559,6 +8559,7 @@ export namespace Prisma {
     productId: number | null
     quantity: number | null
     price: number | null
+    status: string | null
   }
 
   export type OrderItemMaxAggregateOutputType = {
@@ -8567,6 +8568,7 @@ export namespace Prisma {
     productId: number | null
     quantity: number | null
     price: number | null
+    status: string | null
   }
 
   export type OrderItemCountAggregateOutputType = {
@@ -8575,6 +8577,7 @@ export namespace Prisma {
     productId: number
     quantity: number
     price: number
+    status: number
     _all: number
   }
 
@@ -8601,6 +8604,7 @@ export namespace Prisma {
     productId?: true
     quantity?: true
     price?: true
+    status?: true
   }
 
   export type OrderItemMaxAggregateInputType = {
@@ -8609,6 +8613,7 @@ export namespace Prisma {
     productId?: true
     quantity?: true
     price?: true
+    status?: true
   }
 
   export type OrderItemCountAggregateInputType = {
@@ -8617,6 +8622,7 @@ export namespace Prisma {
     productId?: true
     quantity?: true
     price?: true
+    status?: true
     _all?: true
   }
 
@@ -8712,6 +8718,7 @@ export namespace Prisma {
     productId: number
     quantity: number
     price: number
+    status: string
     _count: OrderItemCountAggregateOutputType | null
     _avg: OrderItemAvgAggregateOutputType | null
     _sum: OrderItemSumAggregateOutputType | null
@@ -8739,6 +8746,7 @@ export namespace Prisma {
     productId?: boolean
     quantity?: boolean
     price?: boolean
+    status?: boolean
     order?: boolean | OrderDefaultArgs<ExtArgs>
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["orderItem"]>
@@ -8749,6 +8757,7 @@ export namespace Prisma {
     productId?: boolean
     quantity?: boolean
     price?: boolean
+    status?: boolean
     order?: boolean | OrderDefaultArgs<ExtArgs>
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["orderItem"]>
@@ -8759,6 +8768,7 @@ export namespace Prisma {
     productId?: boolean
     quantity?: boolean
     price?: boolean
+    status?: boolean
     order?: boolean | OrderDefaultArgs<ExtArgs>
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["orderItem"]>
@@ -8769,9 +8779,10 @@ export namespace Prisma {
     productId?: boolean
     quantity?: boolean
     price?: boolean
+    status?: boolean
   }
 
-  export type OrderItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderId" | "productId" | "quantity" | "price", ExtArgs["result"]["orderItem"]>
+  export type OrderItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderId" | "productId" | "quantity" | "price" | "status", ExtArgs["result"]["orderItem"]>
   export type OrderItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     order?: boolean | OrderDefaultArgs<ExtArgs>
     product?: boolean | ProductDefaultArgs<ExtArgs>
@@ -8797,6 +8808,7 @@ export namespace Prisma {
       productId: number
       quantity: number
       price: number
+      status: string
     }, ExtArgs["result"]["orderItem"]>
     composites: {}
   }
@@ -9227,6 +9239,7 @@ export namespace Prisma {
     readonly productId: FieldRef<"OrderItem", 'Int'>
     readonly quantity: FieldRef<"OrderItem", 'Int'>
     readonly price: FieldRef<"OrderItem", 'Float'>
+    readonly status: FieldRef<"OrderItem", 'String'>
   }
     
 
@@ -10776,7 +10789,8 @@ export namespace Prisma {
     orderId: 'orderId',
     productId: 'productId',
     quantity: 'quantity',
-    price: 'price'
+    price: 'price',
+    status: 'status'
   };
 
   export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
@@ -11322,6 +11336,7 @@ export namespace Prisma {
     productId?: IntFilter<"OrderItem"> | number
     quantity?: IntFilter<"OrderItem"> | number
     price?: FloatFilter<"OrderItem"> | number
+    status?: StringFilter<"OrderItem"> | string
     order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
   }
@@ -11332,6 +11347,7 @@ export namespace Prisma {
     productId?: SortOrder
     quantity?: SortOrder
     price?: SortOrder
+    status?: SortOrder
     order?: OrderOrderByWithRelationInput
     product?: ProductOrderByWithRelationInput
   }
@@ -11345,6 +11361,7 @@ export namespace Prisma {
     productId?: IntFilter<"OrderItem"> | number
     quantity?: IntFilter<"OrderItem"> | number
     price?: FloatFilter<"OrderItem"> | number
+    status?: StringFilter<"OrderItem"> | string
     order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
   }, "id">
@@ -11355,6 +11372,7 @@ export namespace Prisma {
     productId?: SortOrder
     quantity?: SortOrder
     price?: SortOrder
+    status?: SortOrder
     _count?: OrderItemCountOrderByAggregateInput
     _avg?: OrderItemAvgOrderByAggregateInput
     _max?: OrderItemMaxOrderByAggregateInput
@@ -11371,6 +11389,7 @@ export namespace Prisma {
     productId?: IntWithAggregatesFilter<"OrderItem"> | number
     quantity?: IntWithAggregatesFilter<"OrderItem"> | number
     price?: FloatWithAggregatesFilter<"OrderItem"> | number
+    status?: StringWithAggregatesFilter<"OrderItem"> | string
   }
 
   export type NotificationSubscriptionWhereInput = {
@@ -11832,6 +11851,7 @@ export namespace Prisma {
   export type OrderItemCreateInput = {
     quantity: number
     price: number
+    status?: string
     order: OrderCreateNestedOneWithoutItemsInput
     product: ProductCreateNestedOneWithoutOrderItemsInput
   }
@@ -11842,11 +11862,13 @@ export namespace Prisma {
     productId: number
     quantity: number
     price: number
+    status?: string
   }
 
   export type OrderItemUpdateInput = {
     quantity?: IntFieldUpdateOperationsInput | number
     price?: FloatFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
     order?: OrderUpdateOneRequiredWithoutItemsNestedInput
     product?: ProductUpdateOneRequiredWithoutOrderItemsNestedInput
   }
@@ -11857,6 +11879,7 @@ export namespace Prisma {
     productId?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     price?: FloatFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
   }
 
   export type OrderItemCreateManyInput = {
@@ -11865,11 +11888,13 @@ export namespace Prisma {
     productId: number
     quantity: number
     price: number
+    status?: string
   }
 
   export type OrderItemUpdateManyMutationInput = {
     quantity?: IntFieldUpdateOperationsInput | number
     price?: FloatFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
   }
 
   export type OrderItemUncheckedUpdateManyInput = {
@@ -11878,6 +11903,7 @@ export namespace Prisma {
     productId?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     price?: FloatFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
   }
 
   export type NotificationSubscriptionCreateInput = {
@@ -12405,6 +12431,7 @@ export namespace Prisma {
     productId?: SortOrder
     quantity?: SortOrder
     price?: SortOrder
+    status?: SortOrder
   }
 
   export type OrderItemAvgOrderByAggregateInput = {
@@ -12421,6 +12448,7 @@ export namespace Prisma {
     productId?: SortOrder
     quantity?: SortOrder
     price?: SortOrder
+    status?: SortOrder
   }
 
   export type OrderItemMinOrderByAggregateInput = {
@@ -12429,6 +12457,7 @@ export namespace Prisma {
     productId?: SortOrder
     quantity?: SortOrder
     price?: SortOrder
+    status?: SortOrder
   }
 
   export type OrderItemSumOrderByAggregateInput = {
@@ -13306,6 +13335,7 @@ export namespace Prisma {
   export type OrderItemCreateWithoutProductInput = {
     quantity: number
     price: number
+    status?: string
     order: OrderCreateNestedOneWithoutItemsInput
   }
 
@@ -13314,6 +13344,7 @@ export namespace Prisma {
     orderId: number
     quantity: number
     price: number
+    status?: string
   }
 
   export type OrderItemCreateOrConnectWithoutProductInput = {
@@ -13404,6 +13435,7 @@ export namespace Prisma {
     productId?: IntFilter<"OrderItem"> | number
     quantity?: IntFilter<"OrderItem"> | number
     price?: FloatFilter<"OrderItem"> | number
+    status?: StringFilter<"OrderItem"> | string
   }
 
   export type CartItemUpsertWithWhereUniqueWithoutProductInput = {
@@ -13656,6 +13688,7 @@ export namespace Prisma {
   export type OrderItemCreateWithoutOrderInput = {
     quantity: number
     price: number
+    status?: string
     product: ProductCreateNestedOneWithoutOrderItemsInput
   }
 
@@ -13664,6 +13697,7 @@ export namespace Prisma {
     productId: number
     quantity: number
     price: number
+    status?: string
   }
 
   export type OrderItemCreateOrConnectWithoutOrderInput = {
@@ -13937,6 +13971,7 @@ export namespace Prisma {
     orderId: number
     quantity: number
     price: number
+    status?: string
   }
 
   export type CartItemCreateManyProductInput = {
@@ -13948,6 +13983,7 @@ export namespace Prisma {
   export type OrderItemUpdateWithoutProductInput = {
     quantity?: IntFieldUpdateOperationsInput | number
     price?: FloatFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
     order?: OrderUpdateOneRequiredWithoutItemsNestedInput
   }
 
@@ -13956,6 +13992,7 @@ export namespace Prisma {
     orderId?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     price?: FloatFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
   }
 
   export type OrderItemUncheckedUpdateManyWithoutProductInput = {
@@ -13963,6 +14000,7 @@ export namespace Prisma {
     orderId?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     price?: FloatFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
   }
 
   export type CartItemUpdateWithoutProductInput = {
@@ -14010,11 +14048,13 @@ export namespace Prisma {
     productId: number
     quantity: number
     price: number
+    status?: string
   }
 
   export type OrderItemUpdateWithoutOrderInput = {
     quantity?: IntFieldUpdateOperationsInput | number
     price?: FloatFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
     product?: ProductUpdateOneRequiredWithoutOrderItemsNestedInput
   }
 
@@ -14023,6 +14063,7 @@ export namespace Prisma {
     productId?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     price?: FloatFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
   }
 
   export type OrderItemUncheckedUpdateManyWithoutOrderInput = {
@@ -14030,6 +14071,7 @@ export namespace Prisma {
     productId?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     price?: FloatFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
   }
 
 

@@ -93,6 +93,7 @@ model OrderItem {
   productId Int
   quantity  Int
   price     Float
+   status    String  @default("pending") 
 
   // Relations
   order     Order   @relation(fields: [orderId], references: [id])
