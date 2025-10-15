@@ -75,7 +75,7 @@ const updateOrderItemStatus = async (req, res, next) => {
     });
 
     // Notify buyer
-    const buyerId = orderItem.order.buyerId; // assuming your order has a buyerId
+    const buyerId = orderItem.order.buyerId; 
 
     const buyerSubscription = await prisma.notificationSubscription.findFirst({
       where: { userId: buyerId, role: 'buyer' },

@@ -5,9 +5,9 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model Buyer {
@@ -22,32 +22,48 @@ model Buyer {
 }
 
 model Vendor {
-  id          Int      @id @default(autoincrement())
-  name        String
-  email       String   @unique
-  password    String
-  companyName String
-  phone       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                Int        @id @default(autoincrement())
+  name              String
+  email             String     @unique
+  password          String
+  companyName       String
+  phone             String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  productCategories Category[]
 
   products Product[]
 }
 
 model Product {
-  id          Int         @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   name        String
   description String?
   image       String
   price       Float
   stock       Int
-  category    String?
-  vendorId    Int
-  vendor      Vendor      @relation(fields: [vendorId], references: [id])
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  orderItems  OrderItem[]
-  cartItems   CartItem[] // 👈 Reverse relation
+
+  category String?
+  vendorId Int
+  vendor   Vendor  @relation(fields: [vendorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orderItems OrderItem[]
+  cartItems  CartItem[]
+}
+
+model PredefinedProductCategory {
+  id   Int    @id @default(autoincrement())
+  name String
+}
+
+model Category {
+  id       Int    @id @default(autoincrement())
+  name     String
+  vendor   Vendor @relation(fields: [vendorId], references: [id])
+  vendorId Int
 }
 
 model Cart {
@@ -76,7 +92,7 @@ model Order {
   buyerId         Int
   totalAmount     Float
   paymentIntentId String   @unique
-  status          String   @default("pending") // pending, paid, failed , shipped , delivered
+  status          String   @default("pending") // pending, paid, failed
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

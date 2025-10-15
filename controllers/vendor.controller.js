@@ -1,7 +1,7 @@
 const prisma = require('../utils/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken')
-
+const {  validationResult } = require('express-validator');
 
 
 const getVendor = async(req,res,next) => {
@@ -83,6 +83,12 @@ const getSalesSummary = async (req, res, next) => {
 
 
 const registerVendor = async (req, res, next) => {
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const { name, email, password, companyName, phone } = req.body;
     if(!name){
         throw new Error('Name is required')
@@ -96,6 +102,7 @@ const registerVendor = async (req, res, next) => {
     if(!companyName){
         throw new Error('Company Name is required');
     }
+
     
   try {
     // 1. Check if vendor already exists
@@ -135,7 +142,14 @@ const registerVendor = async (req, res, next) => {
 
 
 const loginVendor = async(req,res,next)=>{
+   const errors = validationResult(req);
+      console.log('errors are:',errors)
+      if(!errors.isEmpty())
+      {
+        return res.status(400).json({errors:errors.array()})
+      }
     try{
+     
         const {email,password} = req.body;
         if(!email || !password){
             return res.json('Email and password are required')

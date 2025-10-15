@@ -1,6 +1,7 @@
-const prisma = require('../utils/db');
-const cloudinary = require('../utils/cloudinary');
+const prisma = require('../../utils/db');
+const cloudinary = require('../../utils/cloudinary');
 const streamifier = require('streamifier');
+const { validationResult } = require('express-validator');
 
 // Helper function to upload image to Cloudinary using a stream
 const uploadImageToCloudinary = (buffer) => {
@@ -38,9 +39,13 @@ const extractPublicIdFromCloudinaryImage = (url) => {
 
 
 const addProduct = async (req, res, next) => {
+const errors = validationResult(req);
+if(!errors.isEmpty()){
+  return res.status(400).json({errors:errors.array()})
+}
   try {
     console.log('req.body is:',req.body)
-    const { name, description, price, stock, category } = req.body;
+    const { name, description, price, stock, category , isUserDefinedCategory } = req.body;
 
     // ✅ Use vendorId from the authenticated token, not from the body
     const vendorId = req.user?.id;
@@ -71,6 +76,24 @@ const addProduct = async (req, res, next) => {
     }
 
     const imageUrl = await uploadImageToCloudinary(req.file.buffer);
+    if(isUserDefinedCategory != 'false'){
+      const isExists = await prisma.category.findFirst({
+  where:{
+    name:category,
+    vendorId:vendorId
+  }
+      })
+      if(!isExists){ 
+await prisma.category.create({
+  data: {
+    name: category,
+    vendorId: vendorId,
+  },
+});
+      }
+    }
+    console.log('Uploaded image URL:', imageUrl);
+
 
     // ✅ Create product in DB
     const product = await prisma.product.create({
