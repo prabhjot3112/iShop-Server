@@ -1,6 +1,7 @@
 const prisma = require('../utils/db');
 const sendPushNotification = require('../utils/push');
-
+const jwt = require('jsonwebtoken');
+const { addVendorClient, removeVendorClient } = require('../utils/sseManager');
 // GET /orders/:id
 const getOrder = async (req, res , next) => {
   try {
@@ -20,6 +21,60 @@ const getOrder = async (req, res , next) => {
     next(error)
   }
 };
+
+const sseClients = {}; 
+
+const buyerUpdates = (req, res) => {
+  console.log('token:', req.params.token)
+  const decoded = jwt.verify(req.params.token, process.env.JWT_SECRET);
+  console.log(decoded)
+  const buyerId = decoded.id;
+  
+  res.set({
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
+  });
+  res.flushHeaders();
+
+  if (!sseClients[buyerId]) {
+    sseClients[buyerId] = [];
+  }
+  sseClients[buyerId].push(res);
+
+  req.on('close', () => {
+    sseClients[buyerId] = sseClients[buyerId].filter(r => r !== res);
+  });
+}
+
+
+function keepAlive(res) {
+  res.write(`: ping\n\n`);
+}
+
+
+const KEEP_ALIVE_INTERVAL = 20 * 1000;
+const vendorUpdates = (req, res) => {
+ 
+  const vendorId = req.user.id;
+  
+  res.set({
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
+  });
+  res.flushHeaders();
+
+  addVendorClient(vendorId , res)
+
+   const interval = setInterval(() => {
+    keepAlive(res);
+  }, KEEP_ALIVE_INTERVAL);
+  req.on('close', () => {
+     clearInterval(interval);
+    removeVendorClient(vendorId , res)
+  });
+}
 
 const getOrders = async (req, res, next) => {
   try {
@@ -81,22 +136,40 @@ const updateOrderItemStatus = async (req, res, next) => {
       where: { userId: buyerId, role: 'buyer' },
     });
 
+
+     const notifyBuyerSSE = (buyerId, data) => {
+      try{
+
+        if (sseClients[buyerId]) {
+    sseClients[buyerId].forEach(res => {
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    });
+  }
+  }catch(e){
+    console.error('SSE notify error:',e)
+  }
+};
     if (buyerSubscription) {
       const statusMessages = {
-        pending: "Your order is pending confirmation.",
-        packed: "Your order has been packed.",
-        dispatched: "Your order is on its way.",
+        pending: `Your order [${orderItem.product.name}] is pending confirmation.`,
+        packed: `Your order [${orderItem.product.name}] has been packed.`,
+        dispatched: `Your order [${orderItem.product.name}] is on its way.`,
         "out-for-delivery": `Your order [${orderItem.product.name}] is out for delivery!`,
-        delivered: "Your order has been delivered. Enjoy!",
-        cancelled: "Your order has been cancelled.",
+        delivered: `Your order [${orderItem.product.name}] has been delivered. Enjoy!`,
+        cancelled: `Your order [${orderItem.product.name}] has been cancelled.`,
       };
 
       await sendPushNotification(buyerSubscription, {
         title: `Order Status: ${status.toUpperCase()}`,
         body: statusMessages[status] || "Your order status has been updated.",
       });
+notifyBuyerSSE(buyerId, {
+  orderItemId,
+  status,
+  productName: orderItem.product.name,
+  message: statusMessages[status] || "Your order status has been updated."
+});
     }
-
     return res.status(200).json({
       message: "Order item status updated",
       item: updatedItem,
@@ -170,5 +243,5 @@ const getOrdersForVendor = async(req,res,next) => {
 }
 
 module.exports = {
-    getOrder , getOrders , getOrdersForVendor , updateOrderItemStatus , trackOrder
+    getOrder , getOrders , getOrdersForVendor , updateOrderItemStatus , trackOrder , buyerUpdates , vendorUpdates
 }

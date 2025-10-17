@@ -5,6 +5,7 @@ const prisma = require('../utils/db');
 const { createOrder } = require("../services/orderService");
 const crypto = require('crypto');
 const sendPushNotification = require("../utils/push");
+const { notifyVendor } = require("../utils/sseManager");
 // Middleware must set req.user from Supabase token
 const createOrderController = async (req, res) => {
   try {
@@ -89,6 +90,9 @@ const createOrderController = async (req, res) => {
 
 const verifyPayment = async (req, res, next) => {
   try {
+
+
+  
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
     // 1. Validate signature
@@ -115,6 +119,8 @@ const verifyPayment = async (req, res, next) => {
       where: { userId: buyerId, role: 'buyer' },
     });
 
+
+    
     if (buyerSubscription) {
       await sendPushNotification(buyerSubscription, {
         title: "Order Confirmed 🎉",
@@ -132,6 +138,15 @@ const verifyPayment = async (req, res, next) => {
 
     for (const item of orderItems) {
       const vendorId = item.product.vendorId;
+
+       const payload = {
+    orderId: order.id,
+    productId: item.product.id,
+    productName: item.product.name,
+    buyerId: req.user.id,
+    // you can include timestamp, quantity, etc
+  };
+    notifyVendor(vendorId, payload);
 
       // Notify vendor only once
       if (!notifiedVendors.has(vendorId)) {

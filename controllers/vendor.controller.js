@@ -20,66 +20,107 @@ const getVendor = async(req,res,next) => {
 const getSalesSummary = async (req, res, next) => {
   try {
     const vendorId = req.user.id;
+    let { startDate, endDate, category, sortBy } = req.query;
+    sortBy = sortBy || 'unitsSold';
 
-    // Fetch all OrderItems that belong to this vendor's products
-    const orderItems = await prisma.orderItem.findMany({
-      where: {
-        product: {
-          vendorId: vendorId,
-        },
-        order: {
-          status: 'paid', // only consider paid orders
-        },
-      },
-      include: {
-        product: true,
-        order: true,
-      },
-    });
-
-    // Initialize summary variables
-    let totalRevenue = 0;
-    let totalOrders = new Set();
-    let totalUnitsSold = 0;
-    const productSalesMap = {};
-
-    for (const item of orderItems) {
-      totalRevenue += item.price * item.quantity;
-      totalUnitsSold += item.quantity;
-      totalOrders.add(item.orderId);
-
-      const productId = item.productId;
-      const productName = item.product.name;
-      if (!productSalesMap[productId]) {
-        productSalesMap[productId] = {
-          name: productName,
-          quantitySold: 0,
-          revenue: 0,
-        };
-      }
-      productSalesMap[productId].quantitySold += item.quantity;
-      productSalesMap[productId].revenue += item.price * item.quantity;
+    // Parse category filter as array or null
+    category = category ? category.split(',') : null;
+    if (category && category.includes('All')) {
+      category = null;
     }
 
-    // Optional: Get most sold product
-    const mostSoldProduct = Object.entries(productSalesMap)
-      .sort((a, b) => b[1].quantitySold - a[1].quantitySold)[0]?.[1] || null;
+    // Prepare query params and conditions
+    const params = [vendorId];
+    let paramIndex = 2;
+    let dateConditions = '';
+    if (startDate) {
+      dateConditions += ` AND o."createdAt" >= $${paramIndex++} `;
+      params.push(new Date(startDate));
+    }
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      dateConditions += ` AND o."createdAt" <= $${paramIndex++} `;
+      params.push(end);
+    }
 
-    res.status(200).json({
-      success: true,
-      summary: {
-        totalOrders: totalOrders.size,
-        totalRevenue,
-        totalUnitsSold,
-        mostSoldProduct,
-        productBreakdown: productSalesMap, // useful for charting
-      },
-    });
+    let categoryCondition = '';
+    if (category) {
+      categoryCondition = ` AND p.category && $${paramIndex++} `;
+      params.push(category);
+    }
 
-  } catch (error) {
-    next(error);
+    // Determine ORDER BY clause
+    let orderByClause = '';
+    if (sortBy === 'unitsSold') {
+      orderByClause = 'ORDER BY "quantitySold" DESC';
+    } else if (sortBy === 'revenue') {
+      orderByClause = 'ORDER BY "revenue" DESC';
+    } else if (sortBy === 'recent') {
+      orderByClause = 'ORDER BY "latestOrderDate" DESC';
+    }
+
+    // Final SQL query
+    const sql = `
+      SELECT
+        oi."productId",
+        p.name,
+        SUM(oi.quantity) AS "quantitySold",
+        SUM(oi.price) AS "revenue",
+        COUNT(oi."orderId") AS "orderCount",
+        MAX(o."createdAt") AS "latestOrderDate"
+      FROM "OrderItem" oi
+      JOIN "Order" o ON oi."orderId" = o.id
+      JOIN "Product" p ON oi."productId" = p.id
+      WHERE
+        o.status = 'paid'
+        AND p."vendorId" = $1
+        ${dateConditions}
+        ${categoryCondition}
+      GROUP BY oi."productId", p.name
+      ${orderByClause}
+      LIMIT 100
+    `;
+
+    // Execute raw query with parameters
+    const results = await prisma.$queryRawUnsafe(sql, ...params);
+// Convert BigInt fields to Number
+const normalizedResults = results.map(r => ({
+  productId: r.productId,
+  name: r.name,
+  quantitySold: Number(r.quantitySold),
+  revenue: Number(r.revenue),
+  orderCount: Number(r.orderCount),
+  latestOrderDate: r.latestOrderDate, // keep as Date or string
+}));
+
+const totalRevenue = normalizedResults.reduce((sum, r) => sum + r.revenue, 0);
+const totalUnitsSold = normalizedResults.reduce((sum, r) => sum + r.quantitySold, 0);
+const totalOrders = normalizedResults.reduce((sum, r) => sum + r.orderCount, 0);
+
+const mostSoldProduct =
+  normalizedResults.length > 0
+    ? normalizedResults.reduce((max, p) => (p.quantitySold > max.quantitySold ? p : max), normalizedResults[0])
+    : null;
+
+res.json({
+  success: true,
+  summary: {
+    totalOrders,
+    totalRevenue,
+    totalUnitsSold,
+    mostSoldProduct,
+    productBreakdown: normalizedResults,
+  },
+});
+
+  } catch (err) {
+    next(err);
   }
 };
+
+
+
 
 
 const registerVendor = async (req, res, next) => {
