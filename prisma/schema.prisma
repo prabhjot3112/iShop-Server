@@ -8,7 +8,7 @@ generator client {
 datasource db {
   provider  = "postgresql"
    url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+    directUrl = env("DIRECT_URL")
 }
 
 model Buyer {
@@ -44,7 +44,7 @@ model Product {
   price       Float
   stock       Int
 
-  category    String?
+  category    String[]
   vendorId    Int
   vendor      Vendor     @relation(fields: [vendorId], references: [id])
 

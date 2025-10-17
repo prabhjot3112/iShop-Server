@@ -5,9 +5,9 @@ generator client {
 }
 
 datasource db {
-  provider          = "postgresql"
-  url               = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Buyer {
@@ -43,9 +43,9 @@ model Product {
   price       Float
   stock       Int
 
-  category String?
+  category String[]
   vendorId Int
-  vendor   Vendor  @relation(fields: [vendorId], references: [id])
+  vendor   Vendor   @relation(fields: [vendorId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

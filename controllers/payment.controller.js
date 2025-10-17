@@ -11,25 +11,48 @@ const createOrderController = async (req, res) => {
     const buyerId = req.user.id;
     const { totalAmount } = req.body;
 
-    const { razorpayOrder, dbOrder } = await createOrder({ buyerId, totalAmount });
-
-    // Fetch cart items for buyer
+    // ✅ Fetch cart with product details
     const cart = await prisma.cart.findUnique({
       where: { buyerId },
-      include: { items: {
-        include:{
-          product:true
-        }
-      } }, // assuming a relation "items"
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                price: true,
+                stock: true,
+              },
+            },
+          },
+        },
+      },
     });
 
-    if (!cart || !cart.items.length) {
+    if (!cart || cart.items.length === 0) {
       return res.status(400).json({ error: "Cart is empty" });
     }
-    console.log('cartItems are:',cart.items)
-    
-    // Create order items from cart
-    const orderItemsData = cart.items.map(item => ({
+
+    // ✅ Split cart items into in-stock and out-of-stock
+    const inStockItems = cart.items.filter(item => item.product.stock > 0);
+    const outOfStockItems = cart.items.filter(item => item.product.stock <= 0);
+
+    if (inStockItems.length === 0) {
+      // ❌ No available products at all
+      return res.status(400).json({
+        error: "All products in your cart are out of stock.",
+        outOfStockProducts: outOfStockItems.map(item => ({
+          productId: item.product.id,
+          name: item.product.name,
+        })),
+      });
+    }
+
+    // ✅ Proceed to create the order only for in-stock items
+    const { razorpayOrder, dbOrder } = await createOrder({ buyerId, totalAmount });
+
+    const orderItemsData = inStockItems.map(item => ({
       orderId: dbOrder.id,
       productId: item.productId,
       quantity: item.quantity,
@@ -40,17 +63,28 @@ const createOrderController = async (req, res) => {
       data: orderItemsData,
     });
 
+    // Optionally, remove purchased items from cart here
 
     return res.status(201).json({
       success: true,
+      message:
+        outOfStockItems.length > 0
+          ? "Order Created with available products. Some items were out of stock and not included."
+          : "Order Created successfully.",
       razorpayOrder,
       dbOrder,
+      outOfStockProducts: outOfStockItems.map(item => ({
+        productId: item.product.id,
+        name: item.product.name,
+      })),
     });
   } catch (err) {
     console.error("Error creating order:", err);
     return res.status(500).json({ error: "Failed to create order" });
   }
 };
+
+
 
 
 const verifyPayment = async (req, res, next) => {
@@ -115,12 +149,15 @@ const verifyPayment = async (req, res, next) => {
         notifiedVendors.add(vendorId);
       }
       console.log('item is:',item)
+      const productStock = item.product.stock - item.quantity;
+      if(productStock < 0){
+        return res.status(400).json({ success: false, message: `Insufficient stock for product ${item.product.name}` });
+      }
+      // Update product stock
       await prisma.product.update({
         where: { id: item.product.id },
         data: {
-          stock: {
-            decrement: parseInt(item.product.stock), // assuming item has stock field
-          },
+          stock: productStock
         },
       });
     }

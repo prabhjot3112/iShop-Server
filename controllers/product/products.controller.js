@@ -45,11 +45,14 @@ if(!errors.isEmpty()){
 }
   try {
     console.log('req.body is:',req.body)
-    const { name, description, price, stock, category , isUserDefinedCategory } = req.body;
+    const { name, description, price, stock, category, isUserDefinedCategory } = req.body;
 
     // ✅ Use vendorId from the authenticated token, not from the body
     const vendorId = req.user?.id;
     const role = req.user?.role;
+    const categoryArray = category.split(',').map(cat => cat.trim());
+
+    console.log('Parsed category array:', categoryArray);
 
     // ✅ Role check
     if (role !== 'vendor') {
@@ -74,23 +77,27 @@ if(!errors.isEmpty()){
     if (!req.file) {
       return res.status(400).json({ error: 'Product image is required' });
     }
-
-    const imageUrl = await uploadImageToCloudinary(req.file.buffer);
+    var imageUrl = '';
+if(req.file.buffer){
+  imageUrl = await uploadImageToCloudinary(req.file.buffer);
+}
     if(isUserDefinedCategory != 'false'){
-      const isExists = await prisma.category.findFirst({
+      categoryArray.map(async (cat) => {
+        const isExists = await prisma.category.findFirst({
   where:{
-    name:category,
+    name:cat,
     vendorId:vendorId
   }
       })
       if(!isExists){ 
 await prisma.category.create({
   data: {
-    name: category,
+    name: cat,
     vendorId: vendorId,
   },
 });
       }
+      })
     }
     console.log('Uploaded image URL:', imageUrl);
 
@@ -103,7 +110,7 @@ await prisma.category.create({
         image: imageUrl,
         price: parseFloat(price),
         stock: parseInt(stock),
-        category,
+        category:categoryArray,
         vendorId,
       },
     });
@@ -121,7 +128,7 @@ await prisma.category.create({
 
 const editProduct = async (req, res, next) => {
   try {
-    const { name, description, price, stock, category } = req.body;
+    const { name, description, price, stock, category = [] } = req.body;
     const { id } = req.params;
 
     const vendorId = req.user?.id;
@@ -166,6 +173,7 @@ const editProduct = async (req, res, next) => {
         await deleteImageFromCloudinary(publicId);
       }
     }
+    const categoryArray = Array.isArray(category) ? category : category.split(',').map(cat => cat.trim());
 
     // ✅ Update product in database
     const updatedProduct = await prisma.product.update({
@@ -176,7 +184,7 @@ const editProduct = async (req, res, next) => {
         image: imageUrl,
         price: parseFloat(price),
         stock: parseInt(stock),
-        category,
+        category:categoryArray,
       },
     });
 
@@ -218,6 +226,7 @@ const productDetails = async(req,res,next) =>{
         id:Number(id)
       }
     });
+    if(!product) return res.status(404).json({error:"Product not found"})
     const vendor = await prisma.vendor.findUnique({
       where:{
         id:Number(product.vendorId)
@@ -243,7 +252,7 @@ const searchProduct = async (req, res, next) => {
       minPrice,
       maxPrice,
       page = 1,
-      limit = 10,
+      limit = 7,
       sort,
     } = req.query;
 

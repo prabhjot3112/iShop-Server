@@ -32,6 +32,7 @@ const getCartProducts = async (req, res) => {
       name: item.product.name,
       price: item.product.price,
       quantity: item.quantity,
+      stock:item.product.stock,
       // include other product fields as needed
     }));
 
@@ -162,10 +163,27 @@ const updateCartItem = async (req, res) => {
   try {
     const cart = await prisma.cart.findUnique({
       where: { buyerId: Number(buyerId) },
+      include:{
+        items:{
+          include:{
+            product:{
+              select:{ stock:true , name:true }
+            }
+          }
+        }
+      }
     });
+
 
     if (!cart) {
       return res.status(404).json({ message: 'Cart not found' });
+    }
+    console.log('cart items are:',cart.items)
+    for(let item of cart.items){
+      console.log('item is:',item)
+      if(item.product.stock < quantity){
+        return res.status(400).json({ message: `No more stock available` });
+      }
     }
 
     if (Number(quantity) === 0) {

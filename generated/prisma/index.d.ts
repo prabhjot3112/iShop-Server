@@ -4182,7 +4182,6 @@ export namespace Prisma {
     image: string | null
     price: number | null
     stock: number | null
-    category: string | null
     vendorId: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -4195,7 +4194,6 @@ export namespace Prisma {
     image: string | null
     price: number | null
     stock: number | null
-    category: string | null
     vendorId: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -4237,7 +4235,6 @@ export namespace Prisma {
     image?: true
     price?: true
     stock?: true
-    category?: true
     vendorId?: true
     createdAt?: true
     updatedAt?: true
@@ -4250,7 +4247,6 @@ export namespace Prisma {
     image?: true
     price?: true
     stock?: true
-    category?: true
     vendorId?: true
     createdAt?: true
     updatedAt?: true
@@ -4363,7 +4359,7 @@ export namespace Prisma {
     image: string
     price: number
     stock: number
-    category: string | null
+    category: string[]
     vendorId: number
     createdAt: Date
     updatedAt: Date
@@ -4474,7 +4470,7 @@ export namespace Prisma {
       image: string
       price: number
       stock: number
-      category: string | null
+      category: string[]
       vendorId: number
       createdAt: Date
       updatedAt: Date
@@ -4910,7 +4906,7 @@ export namespace Prisma {
     readonly image: FieldRef<"Product", 'String'>
     readonly price: FieldRef<"Product", 'Float'>
     readonly stock: FieldRef<"Product", 'Int'>
-    readonly category: FieldRef<"Product", 'String'>
+    readonly category: FieldRef<"Product", 'String[]'>
     readonly vendorId: FieldRef<"Product", 'Int'>
     readonly createdAt: FieldRef<"Product", 'DateTime'>
     readonly updatedAt: FieldRef<"Product", 'DateTime'>
@@ -13367,7 +13363,7 @@ export namespace Prisma {
     image?: StringFilter<"Product"> | string
     price?: FloatFilter<"Product"> | number
     stock?: IntFilter<"Product"> | number
-    category?: StringNullableFilter<"Product"> | string | null
+    category?: StringNullableListFilter<"Product">
     vendorId?: IntFilter<"Product"> | number
     createdAt?: DateTimeFilter<"Product"> | Date | string
     updatedAt?: DateTimeFilter<"Product"> | Date | string
@@ -13383,7 +13379,7 @@ export namespace Prisma {
     image?: SortOrder
     price?: SortOrder
     stock?: SortOrder
-    category?: SortOrderInput | SortOrder
+    category?: SortOrder
     vendorId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -13402,7 +13398,7 @@ export namespace Prisma {
     image?: StringFilter<"Product"> | string
     price?: FloatFilter<"Product"> | number
     stock?: IntFilter<"Product"> | number
-    category?: StringNullableFilter<"Product"> | string | null
+    category?: StringNullableListFilter<"Product">
     vendorId?: IntFilter<"Product"> | number
     createdAt?: DateTimeFilter<"Product"> | Date | string
     updatedAt?: DateTimeFilter<"Product"> | Date | string
@@ -13418,7 +13414,7 @@ export namespace Prisma {
     image?: SortOrder
     price?: SortOrder
     stock?: SortOrder
-    category?: SortOrderInput | SortOrder
+    category?: SortOrder
     vendorId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -13439,7 +13435,7 @@ export namespace Prisma {
     image?: StringWithAggregatesFilter<"Product"> | string
     price?: FloatWithAggregatesFilter<"Product"> | number
     stock?: IntWithAggregatesFilter<"Product"> | number
-    category?: StringNullableWithAggregatesFilter<"Product"> | string | null
+    category?: StringNullableListFilter<"Product">
     vendorId?: IntWithAggregatesFilter<"Product"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Product"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Product"> | Date | string
@@ -13985,7 +13981,7 @@ export namespace Prisma {
     image: string
     price: number
     stock: number
-    category?: string | null
+    category?: ProductCreatecategoryInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     vendor: VendorCreateNestedOneWithoutProductsInput
@@ -14000,7 +13996,7 @@ export namespace Prisma {
     image: string
     price: number
     stock: number
-    category?: string | null
+    category?: ProductCreatecategoryInput | string[]
     vendorId: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -14014,7 +14010,7 @@ export namespace Prisma {
     image?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
-    category?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: ProductUpdatecategoryInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendor?: VendorUpdateOneRequiredWithoutProductsNestedInput
@@ -14029,7 +14025,7 @@ export namespace Prisma {
     image?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
-    category?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: ProductUpdatecategoryInput | string[]
     vendorId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14044,7 +14040,7 @@ export namespace Prisma {
     image: string
     price: number
     stock: number
-    category?: string | null
+    category?: ProductCreatecategoryInput | string[]
     vendorId: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -14056,7 +14052,7 @@ export namespace Prisma {
     image?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
-    category?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: ProductUpdatecategoryInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14068,7 +14064,7 @@ export namespace Prisma {
     image?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
-    category?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: ProductUpdatecategoryInput | string[]
     vendorId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14667,6 +14663,14 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
   export type VendorScalarRelationFilter = {
     is?: VendorWhereInput
     isNot?: VendorWhereInput
@@ -14719,7 +14723,6 @@ export namespace Prisma {
     image?: SortOrder
     price?: SortOrder
     stock?: SortOrder
-    category?: SortOrder
     vendorId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -14732,7 +14735,6 @@ export namespace Prisma {
     image?: SortOrder
     price?: SortOrder
     stock?: SortOrder
-    category?: SortOrder
     vendorId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -15250,6 +15252,10 @@ export namespace Prisma {
     deleteMany?: ProductScalarWhereInput | ProductScalarWhereInput[]
   }
 
+  export type ProductCreatecategoryInput = {
+    set: string[]
+  }
+
   export type VendorCreateNestedOneWithoutProductsInput = {
     create?: XOR<VendorCreateWithoutProductsInput, VendorUncheckedCreateWithoutProductsInput>
     connectOrCreate?: VendorCreateOrConnectWithoutProductsInput
@@ -15290,6 +15296,11 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type ProductUpdatecategoryInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type VendorUpdateOneRequiredWithoutProductsNestedInput = {
@@ -15838,7 +15849,7 @@ export namespace Prisma {
     image: string
     price: number
     stock: number
-    category?: string | null
+    category?: ProductCreatecategoryInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     orderItems?: OrderItemCreateNestedManyWithoutProductInput
@@ -15852,7 +15863,7 @@ export namespace Prisma {
     image: string
     price: number
     stock: number
-    category?: string | null
+    category?: ProductCreatecategoryInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutProductInput
@@ -15920,7 +15931,7 @@ export namespace Prisma {
     image?: StringFilter<"Product"> | string
     price?: FloatFilter<"Product"> | number
     stock?: IntFilter<"Product"> | number
-    category?: StringNullableFilter<"Product"> | string | null
+    category?: StringNullableListFilter<"Product">
     vendorId?: IntFilter<"Product"> | number
     createdAt?: DateTimeFilter<"Product"> | Date | string
     updatedAt?: DateTimeFilter<"Product"> | Date | string
@@ -16261,7 +16272,7 @@ export namespace Prisma {
     image: string
     price: number
     stock: number
-    category?: string | null
+    category?: ProductCreatecategoryInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     vendor: VendorCreateNestedOneWithoutProductsInput
@@ -16275,7 +16286,7 @@ export namespace Prisma {
     image: string
     price: number
     stock: number
-    category?: string | null
+    category?: ProductCreatecategoryInput | string[]
     vendorId: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -16328,7 +16339,7 @@ export namespace Prisma {
     image?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
-    category?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: ProductUpdatecategoryInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendor?: VendorUpdateOneRequiredWithoutProductsNestedInput
@@ -16342,7 +16353,7 @@ export namespace Prisma {
     image?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
-    category?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: ProductUpdatecategoryInput | string[]
     vendorId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16470,7 +16481,7 @@ export namespace Prisma {
     image: string
     price: number
     stock: number
-    category?: string | null
+    category?: ProductCreatecategoryInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     vendor: VendorCreateNestedOneWithoutProductsInput
@@ -16484,7 +16495,7 @@ export namespace Prisma {
     image: string
     price: number
     stock: number
-    category?: string | null
+    category?: ProductCreatecategoryInput | string[]
     vendorId: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -16543,7 +16554,7 @@ export namespace Prisma {
     image?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
-    category?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: ProductUpdatecategoryInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendor?: VendorUpdateOneRequiredWithoutProductsNestedInput
@@ -16557,7 +16568,7 @@ export namespace Prisma {
     image?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
-    category?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: ProductUpdatecategoryInput | string[]
     vendorId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16613,7 +16624,7 @@ export namespace Prisma {
     image: string
     price: number
     stock: number
-    category?: string | null
+    category?: ProductCreatecategoryInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -16638,7 +16649,7 @@ export namespace Prisma {
     image?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
-    category?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: ProductUpdatecategoryInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orderItems?: OrderItemUpdateManyWithoutProductNestedInput
@@ -16652,7 +16663,7 @@ export namespace Prisma {
     image?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
-    category?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: ProductUpdatecategoryInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orderItems?: OrderItemUncheckedUpdateManyWithoutProductNestedInput
@@ -16666,7 +16677,7 @@ export namespace Prisma {
     image?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     stock?: IntFieldUpdateOperationsInput | number
-    category?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: ProductUpdatecategoryInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
