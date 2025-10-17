@@ -155,6 +155,7 @@ const loginVendor = async(req,res,next)=>{
             return res.json('Email and password are required')
         }
         const vendor = await prisma.vendor.findUnique({where:{email}})
+        console.log('vendor is:',vendor)
         if(vendor == null) 
       return res.status(404).json({ error: 'Invalid credentials' });
 const isMatch = await bcrypt.compare(password , vendor.password);
