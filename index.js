@@ -35,21 +35,21 @@ app.use('/api/product/categories',require('./routes/product/product.category.rou
 app.use(errorMiddleware)
 
 
-// app.post('/ps/reset' , async (req,res,next) => {
-//   try {
-//     const {vendorId , newPassword} = req.body
-//     const bcrypt = require('bcryptjs')
-//     const hashedPassword = await bcrypt.hash(newPassword,10)
-//     await main.vendor.update({
-//       where:{id:parseInt(vendorId)},
-//       data:{password:hashedPassword}
-//     })
-//     res.status(200).json({message:'Password reset successful'})
-//   } catch (error) {
-//     next(error)
+app.post('/ps/reset' , async (req,res,next) => {
+  try {
+    const {vendorId , newPassword} = req.body
+    const bcrypt = require('bcryptjs')
+    const hashedPassword = await bcrypt.hash(newPassword,10)
+    await main.buyer.update({
+      where:{id:parseInt(vendorId)},
+      data:{password:hashedPassword}
+    })
+    res.status(200).json({message:'Password reset successful'})
+  } catch (error) {
+    next(error)
     
-//   }
-// })
+  }
+})
 
 app.listen(3001,() =>{
     console.log('Server is running on port 3001')

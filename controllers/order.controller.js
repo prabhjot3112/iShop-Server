@@ -55,9 +55,10 @@ function keepAlive(res) {
 
 const KEEP_ALIVE_INTERVAL = 20 * 1000;
 const vendorUpdates = (req, res) => {
- 
-  const vendorId = req.user.id;
-  
+  const token = req.params.token;
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const vendorId = decoded.id;
+
   res.set({
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
@@ -104,6 +105,7 @@ const getOrders = async (req, res, next) => {
 
 
 const updateOrderItemStatus = async (req, res, next) => {
+  console.log('sseClients:',sseClients)
   try {
     const vendorId = req.user.id;
     const { orderItemId, status } = req.body;
@@ -142,6 +144,7 @@ const updateOrderItemStatus = async (req, res, next) => {
 
         if (sseClients[buyerId]) {
     sseClients[buyerId].forEach(res => {
+      console.log('writing......')
       res.write(`data: ${JSON.stringify(data)}\n\n`);
     });
   }

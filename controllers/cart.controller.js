@@ -98,9 +98,18 @@ const addToCart = async (req, res) => {
     let cart = await prisma.cart.findUnique({
       where: { buyerId :Number(buyerId) },
     });
+    const buyer = await prisma.buyer.findUnique({
+  where: { id: Number(buyerId) },
+});
 
+if (!buyer) {
+  return res.status(404).json({ message: 'Buyer not found. Please register as a buyer first.' });
+}
+
+    console.log('buyer id is:' , buyerId)
     // If no cart, create one
     if (!cart) {
+      console.log('no cart found, creating new one')
       cart = await prisma.cart.create({
         data: {
           buyer: { connect: { id: buyerId } },

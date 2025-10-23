@@ -3,5 +3,5 @@ const { getOrder, getOrders, getOrdersForVendor, updateOrderItemStatus, trackOrd
 const { buyerProtected, vendorProtected } = require("../middlewares/protectedRoute");
 const router = express.Router();
 router.get('/order/:id' , buyerProtected
- ,  getOrder).get('/updates/buyer/:token' , buyerUpdates).get('/updates/vendor', vendorProtected ,  vendorUpdates).get('/all',buyerProtected , getOrders).get('/vendor', vendorProtected , getOrdersForVendor).put('/order/update/item/status' , vendorProtected , updateOrderItemStatus).get('/order/item/track/:orderId' , buyerProtected ,  trackOrder)
+ ,  getOrder).get('/updates/buyer/:token' , buyerUpdates).get('/updates/vendor/:token' ,  vendorUpdates).get('/all',buyerProtected , getOrders).get('/vendor', vendorProtected , getOrdersForVendor).put('/order/update/item/status' , vendorProtected , updateOrderItemStatus).get('/order/item/track/:orderId' , buyerProtected ,  trackOrder)
 module.exports = router
