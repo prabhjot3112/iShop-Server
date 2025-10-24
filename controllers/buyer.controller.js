@@ -1,50 +1,59 @@
-const prisma = require('../utils/db')
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
+const prisma = require("../utils/db");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { logger } = require("../middlewares/logger");
 // GET -/:id
-const getBuyer = async(req,res,next) => {
+const getBuyer = async (req, res, next) => {
   try {
     const buyerId = req.user.id;
     const buyer = await prisma.buyer.findUnique({
-      where:{id:parseInt(buyerId)},
-      select:{id:true , email:true , name:true}
-    })
-    console.log('buyer is:',buyer)
-    res.status(200).json({buyer})
+      where: { id: parseInt(buyerId) },
+      select: { id: true, email: true, name: true },
+    });
+    console.log("buyer is:", buyer);
+    res.status(200).json({ buyer });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 // POST - /register
-const register = async(req,res,next)=>{
-    const {name,email , password} = req.body;
-    try{
-    if(!name){
-        throw new Error('Name is required')
-    } if(!email){
-        throw new Error('Email is required')
-    } if(!password){
-        throw new Error('Password is required')
+const register = async (req, res, next) => {
+  const { name, email, password } = req.body;
+  try {
+    if (!name) {
+      throw new Error("Name is required");
     }
-    const isExists = await prisma.buyer.findUnique({where:{email}})
-    console.log('isExists:',isExists)
+    if (!email) {
+      throw new Error("Email is required");
+    }
+    if (!password) {
+      throw new Error("Password is required");
+    }
+    const isExists = await prisma.buyer.findUnique({ where: { email } });
+    console.log("isExists:", isExists);
     if (isExists) {
-  return res.status(400).json({ error: 'User already exists' });
-}
-    const hashedPass = await bcrypt.hash(password , 10);
-    const user = await prisma.buyer.create({
-data:{
-    name,email,password:hashedPass
-}})
-    res.status(201).json({'message':'User registered successfully' , user:{
-        id:user.id,
-        name:user.name , email:user.email
-    }})
-
-    }catch(e){
-       next(e);
+      return res.status(400).json({ error: "User already exists" });
     }
-}
+    const hashedPass = await bcrypt.hash(password, 10);
+    const user = await prisma.buyer.create({
+      data: {
+        name,
+        email,
+        password: hashedPass,
+      },
+    });
+    res.status(201).json({
+      message: "User registered successfully",
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (e) {
+    next(e);
+  }
+};
 
 // POST - /login
 const login = async (req, res, next) => {
@@ -55,28 +64,33 @@ const login = async (req, res, next) => {
 
     // If no user found
     if (!user) {
-      return res.status(404).json({ error: 'Invalid credentials' });
+      return res.status(404).json({ error: "Invalid credentials" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     // If password doesn't match
     if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: "Invalid credentials" });
     }
 
     // Generate token
     const token = jwt.sign(
       {
-        role: 'buyer',
+        role: "buyer",
         id: user.id,
       },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' } 
+      { expiresIn: "7d" }
     );
-
+    logger.info(
+      `HTTP ${req.method} ${req.originalUrl} - body: ${JSON.stringify({
+        email,
+        password,
+      })}`
+    );
     return res.json({
-      message: 'Login successful',
+      message: "Login successful",
       user: {
         id: user.id,
         name: user.name,
@@ -89,9 +103,8 @@ const login = async (req, res, next) => {
   }
 };
 
-
 module.exports = {
-    register,
-    login , getBuyer
-}
-
+  register,
+  login,
+  getBuyer,
+};
