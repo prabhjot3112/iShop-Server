@@ -4,6 +4,7 @@ const { createLogger, format, transports } = require("winston");
 const path = require("path");
 const winston = require("winston/lib/winston/config");
 const { error, debug } = require("console");
+const stripAnsi = require("strip-ansi").default;
 
 winston.addColors({
   error: "bold red",
@@ -11,7 +12,6 @@ winston.addColors({
   info: "green",
   debug: "blue",
 });
-const stripAnsi = require("strip-ansi");
 // Winston setup for file logs
 const logger = createLogger({
   format: format.combine(
@@ -27,7 +27,7 @@ const logger = createLogger({
       filename: path.join(__dirname, "../logs/combined.log"),
       format: format.combine(
         format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-        format.printf(({ timestamp, level, message ,  }) => {
+        format.printf(({ timestamp, level, message }) => {
           return JSON.stringify({
             timestamp,
             level: stripAnsi(level),
