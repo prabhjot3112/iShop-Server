@@ -29,8 +29,12 @@ app.set("view engine", "ejs");
 app.get("/", (req, res) => {
   res.status(200).render("index");
 });
-app.get('/logs',(re,res) => {
+
+app.get('/logs/combined',(req,res) => {
   res.sendFile(path.join(__dirname , '/logs/combined.log'))
+})
+app.get('/logs/error',(req,res) => {
+  res.sendFile(path.join(__dirname , '/logs/error.log'))
 })
 app.use("/api/buyer", buyerRoutes);
 app.use("/api/vendor", vendorRoute);
