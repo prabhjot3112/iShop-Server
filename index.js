@@ -13,7 +13,7 @@ const cartRoute = require("./routes/cart.route");
 const paymentRoute = require("./routes/payment.route");
 const orderRoute = require("./routes/order.route");
 const notificationRoute = require("./routes/notification.route");
-
+const path = require('path')
 const allowedOrigins = [
   "https://i-shop31.vercel.app", // ✅ Vercel live frontend URL
   "http://localhost:5173", // ✅ Local dev (optional)
@@ -29,7 +29,9 @@ app.set("view engine", "ejs");
 app.get("/", (req, res) => {
   res.status(200).render("index");
 });
-
+app.get('/logs',(re,res) => {
+  res.sendFile(path.join(__dirname , '/logs/combined.log'))
+})
 app.use("/api/buyer", buyerRoutes);
 app.use("/api/vendor", vendorRoute);
 app.use("/api/products", productRoute);
