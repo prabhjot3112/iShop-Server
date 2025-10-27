@@ -144,7 +144,7 @@ const updateOrderItemStatus = async (req, res, next) => {
 
         if (sseClients[buyerId]) {
     sseClients[buyerId].forEach(res => {
-      console.log('writing......')
+      // console.log('writing......')
       res.write(`data: ${JSON.stringify(data)}\n\n`);
     });
   }
@@ -161,6 +161,33 @@ const updateOrderItemStatus = async (req, res, next) => {
         delivered: `Your order [${orderItem.product.name}] has been delivered. Enjoy!`,
         cancelled: `Your order [${orderItem.product.name}] has been cancelled.`,
       };
+// 1. Fetch the existing notification for the user
+const existingNotification = await prisma.inAppNotification.findFirst({
+  where: { userId: buyerId, role: 'buyer' },
+});
+
+console.log('existingNotification:', existingNotification);
+
+// 2. Prepare the new message
+const newMessage = statusMessages[status] || "Your order status has been updated.";
+
+if (existingNotification) {
+  await prisma.inAppNotification.update({
+    where: { id: existingNotification.id }, // must specify which row to update
+    data: {
+      message: [...existingNotification.message, newMessage], // spread only the message array
+    },
+  });
+} else {
+  await prisma.inAppNotification.create({
+    data: {
+      userId: buyerId,
+      role: 'buyer',
+      message: [newMessage], // start with array
+    },
+  });
+}
+
 
       await sendPushNotification(buyerSubscription, {
         title: `Order Status: ${status.toUpperCase()}`,
@@ -197,6 +224,7 @@ const trackOrder = async(req,res,next) => {
         }
       }
     })
+    if(!orderItem) return res.status(404).json({message:'Order not found!!'})
     if(orderItem.order.buyerId == buyerId)
   return  res.status(200).json({message:"Success",orderItem})
 else return res.status(404).json({message:'You are not authorized to track this order'})

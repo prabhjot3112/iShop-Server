@@ -16,6 +16,7 @@ const vendorProtected = (req, res, next) => {
 
     // Attach user data to req object
     req.user = decoded;
+    req.role = 'vendor'
     console.log('decoded is:',decoded)
     
 
@@ -51,4 +52,25 @@ const buyerProtected = async(req,res,next) =>{
     return res.status(401).json({ error: err.message});
   }
 }
-module.exports = {vendorProtected , buyerProtected};
+
+const commonProtected = async(req,res,next) =>{
+  const token = req.headers.authorization?.split(' ')[1]; // Bearer token
+
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized: No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+
+    // Attach user data to req object
+    req.user = decoded;
+
+    next(); // ✅ allow the request to continue
+  } catch (err) {
+    console.log('error is:',err)
+    return res.status(401).json({ error: err.message});
+  }
+}
+module.exports = {vendorProtected , buyerProtected , commonProtected};

@@ -54,7 +54,7 @@ app.post("/ps/reset", async (req, res, next) => {
     const { vendorId, newPassword } = req.body;
     const bcrypt = require("bcryptjs");
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await main.buyer.update({
+    await main.vendor.update({
       where: { id: parseInt(vendorId) },
       data: { password: hashedPassword },
     });

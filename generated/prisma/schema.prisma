@@ -122,3 +122,11 @@ model NotificationSubscription {
   keys      Json
   createdAt DateTime @default(now())
 }
+
+model InAppNotification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  role      String
+  message   String[]
+  createdAt DateTime @default(now())
+}

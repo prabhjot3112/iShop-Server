@@ -205,6 +205,14 @@ exports.Prisma.NotificationSubscriptionScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.InAppNotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  role: 'role',
+  message: 'message',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -241,7 +249,8 @@ exports.Prisma.ModelName = {
   CartItem: 'CartItem',
   Order: 'Order',
   OrderItem: 'OrderItem',
-  NotificationSubscription: 'NotificationSubscription'
+  NotificationSubscription: 'NotificationSubscription',
+  InAppNotification: 'InAppNotification'
 };
 
 /**

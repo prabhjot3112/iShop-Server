@@ -90,6 +90,92 @@ const checkPushSubscriptionForVendor = async (req, res) => {
   }
 };
 
+const inAppBuyerNotification = async (req, res) => {
+  try {
+    console.log('User ID:', req.user.id);
+    console.log('Role:', req.role);
+
+    const notifications = await prisma.inAppNotification.findMany({
+      where: {
+        userId: req.user.id,
+        role: req.role,
+      },
+      select: {
+        message: true, // only fetch the message field
+      },
+    });
+
+    // Extract the message arrays into a single array if you want to flatten
+    if(notifications.length == 0) return res.json({message:'No notifications'})
+    const messages = notifications.map(n => n.message).flat();
+
+    console.log('messages:', messages);
+
+    res.status(200).json({ messages });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message || 'Something went wrong' });
+  }
+};
+
+
+
+const inAppVendorNotification = async(req,res) => {
+  try {
+    console.log('User ID:', req.user.id);
+    console.log('Role:', req.role);
+
+    const notifications = await prisma.inAppNotification.findMany({
+      where: {
+        userId: req.user.id,
+        role: req.role,
+      },
+      select: {
+        message: true, // only fetch the message field
+      },
+    });
+
+    // Extract the message arrays into a single array if you want to flatten
+    if(notifications.length == 0) return res.json({message:'No notifications'})
+    const messages = notifications.map(n => n.message).flat();
+
+    console.log('messages:', messages);
+
+    res.status(200).json({ messages });
+  }
+  catch (error) {
+       res.status(500).json({ error: error.message || 'Something went wrong' });
+  }
+}
+
+
+const deleteInAppNotification =  async (req, res) => {
+  const { role, index } = req.params;
+  const userId = req.user.id;
+
+  try {
+    const notification = await prisma.inAppNotification.findFirst({
+      where: { userId, role },
+    });
+
+    if (!notification) return res.status(404).json({ error: 'No notifications found' });
+
+    const updatedMessages = [...notification.message];
+    const actualIndex = updatedMessages.length - 1 - Number(index); // because frontend reversed
+    updatedMessages.splice(actualIndex, 1);
+
+    await prisma.inAppNotification.update({
+      where: { id: notification.id },
+      data: { message: updatedMessages },
+    });
+
+    res.json({ success: true, messages: updatedMessages });
+  } catch (error) {
+    res.status(500).json({ error: error.message || 'Failed to delete notification' });
+  }
+}
+
 module.exports = {
     subscribe , unsubscribe , checkPushSubscriptionForBuyer , checkPushSubscriptionForVendor
+    , inAppBuyerNotification ,  inAppVendorNotification , deleteInAppNotification
 }

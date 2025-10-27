@@ -153,11 +153,40 @@ const verifyPayment = async (req, res, next) => {
         const vendorSubscription = await prisma.notificationSubscription.findFirst({
           where: { userId: vendorId, role: 'vendor' },
         });
+        // 1. Fetch the existing notification for the user
+// 1. Fetch the existing notification for the vendor
+const existingNotification = await prisma.inAppNotification.findFirst({
+  where: { userId: vendorId, role: 'vendor' }, // make sure to query by userId, not id
+});
+
+console.log('existingNotification:', existingNotification);
+
+// 2. Prepare the new message
+const newMessage = `🛒 New Order: ${item.product.name}`;
+
+if (existingNotification) {
+  // Update existing notification by appending the new message
+  await prisma.inAppNotification.update({
+    where: { id: existingNotification.id }, // specify which record to update
+    data: {
+      message: [...existingNotification.message, newMessage], // spread existing messages
+    },
+  });
+} else {
+  // Create a new notification if none exists
+  await prisma.inAppNotification.create({
+    data: {
+      userId: vendorId,
+      role: 'vendor',
+      message: [newMessage], // start with array
+    },
+  });
+}
 
         if (vendorSubscription) {
           await sendPushNotification(vendorSubscription, {
             title: "New Order 📦",
-            body: `Product: ${item.product.name} has been ordered!`,
+            body: newMessage,
           });
         }
 
