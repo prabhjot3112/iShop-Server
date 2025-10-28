@@ -41,6 +41,7 @@ const logger = createLogger({
      new DailyRotateFile({
       filename: path.join(__dirname, "../logs/%DATE%-combined.log"),
       datePattern: "YYYY-MM-DD",
+      level:'info',
       zippedArchive: true,
       maxSize: "20m",
       format: logFormat,
@@ -72,10 +73,16 @@ const logger = createLogger({
 });
 
 // Morgan setup for console + file stream
-const morganMiddleware = morgan("dev", {
-  stream: {
-    write: (message) => logger.info(message.trim()),
-  },
-});
+const morganMiddleware = morgan((tokens, req, res) => {
+  return JSON.stringify({
+        method: tokens.method(req, res),
+            url: tokens.url(req, res),
+              status: tokens.status(req, res),
+               responseTime: tokens["response-time"](req, res) + "ms",
+
+    domain: req.hostname,       // <-- logs the domain
+  });
+}, { stream: { write: message => logger.info(message) } });
+
 
 module.exports = { logger, morganMiddleware };
