@@ -8,9 +8,7 @@ const errorMiddleware = (err, req, res, next) => {
     message: err.message,
     stack: err.stack,
     path: req.originalUrl,
-    method: req.method,
-    body: req.body ? { ...req.body, password: "***" } : undefined, // mask sensitive fields
-  });
+    method: req.method, });
   res.status(500).json({ error: err.message || "Internal Server Error" });
 };
 

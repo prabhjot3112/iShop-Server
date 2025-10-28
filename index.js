@@ -30,12 +30,16 @@ app.get("/", (req, res) => {
   res.status(200).render("index");
 });
 
-app.get('/logs/combined',(req,res) => {
-  res.sendFile(path.join(__dirname , '/logs/combined.log'))
+app.get('/logs/:day/:month/:year/:type' , (req,res) => {
+  res.sendFile(path.join(__dirname , `/logs/${req.params.year}-${req.params.month}-${req.params.day}-${req.params.type == 'combined' ? 'combined' : 'error'}.log`))
 })
-app.get('/logs/error',(req,res) => {
-  res.sendFile(path.join(__dirname , '/logs/error.log'))
-})
+
+// app.get('/logs/combined',(req,res) => {
+//   res.sendFile(path.join(__dirname , '/logs/combined.log'))
+// })
+// app.get('/logs/error',(req,res) => {
+//   res.sendFile(path.join(__dirname , '/logs/error.log'))
+// })
 app.use("/api/buyer", buyerRoutes);
 app.use("/api/vendor", vendorRoute);
 app.use("/api/products", productRoute);

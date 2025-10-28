@@ -3,9 +3,24 @@ const morgan = require("morgan");
 const { createLogger, format, transports } = require("winston");
 const path = require("path");
 const winston = require("winston/lib/winston/config");
-const { error, debug } = require("console");
+const { error, debug, time } = require("console");
 const stripAnsi = require("strip-ansi").default;
 
+const DailyRotateFile = require('winston-daily-rotate-file')
+
+
+
+const logFormat = format.combine(
+  format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+  format.printf(({ timestamp, level, message }) => {
+    return `${timestamp} ${stripAnsi(level.toUpperCase())} ${stripAnsi(message)}`
+    // return JSON.stringify({
+    //   timestamp,
+    //   level: stripAnsi(level),
+    //   message: stripAnsi(message),
+    // });
+  })
+);
 winston.addColors({
   error: "bold red",
   warn: "yellow",
@@ -23,18 +38,23 @@ const logger = createLogger({
   ),
 
   transports: [
-    new transports.File({
-      filename: path.join(__dirname, "../logs/combined.log"),
-      format: format.combine(
-        format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-        format.printf(({ timestamp, level, message }) => {
-          return JSON.stringify({
-            timestamp,
-            level: stripAnsi(level),
-            message: stripAnsi(message),
-          });
-        })
-      ),
+     new DailyRotateFile({
+      filename: path.join(__dirname, "../logs/%DATE%-combined.log"),
+      datePattern: "YYYY-MM-DD",
+      zippedArchive: true,
+      maxSize: "20m",
+      format: logFormat,
+    }),
+
+     // Daily rotated file for errors
+    new DailyRotateFile({
+      filename: path.join(__dirname, "../logs/%DATE%-error.log"),
+      datePattern: "YYYY-MM-DD",
+      level: "error",
+      zippedArchive: true,
+      maxSize: "20m",
+      maxFiles: "30d",
+      format: logFormat,
     }),
     new transports.Console({
       format: format.combine(
@@ -47,22 +67,7 @@ const logger = createLogger({
       ),
     }),
 
-    // File transport (plain JSON)
 
-    new transports.File({
-      filename: path.join(__dirname, "../logs/error.log"),
-        format: format.combine(
-        format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-        format.printf(({ timestamp, level, message }) => {
-          return JSON.stringify({
-            timestamp,
-            level: stripAnsi(level),
-            message: stripAnsi(message),
-          });
-        })
-      ),
-      level: "error",
-    }),
   ],
 });
 
