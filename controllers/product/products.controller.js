@@ -244,6 +244,8 @@ next(error)
 }
 
 
+
+
 const searchProduct = async (req, res, next) => {
   try {
     const { query } = req.params;  // search term (optional)
@@ -259,6 +261,7 @@ const searchProduct = async (req, res, next) => {
     const filters = {
       AND: [],
     };
+    console.log('category:',category)
 
     // Search in name or description (case-insensitive)
     if (query) {
@@ -266,13 +269,25 @@ const searchProduct = async (req, res, next) => {
         OR: [
           { name: { contains: query, mode: 'insensitive' } },
           { description: { contains: query, mode: 'insensitive' } },
+          // {category : {contains: category , mode:'insensitive'}}
         ],
       });
     }
 
-    // Category filter
+    // // Category filter
+    // if (category) {
+    //   filters.AND.push({ category: category });
+    // }
+
+    // 🏷 Category filter (enable this)
     if (category) {
-      filters.AND.push({ category: category });
+      // If 'category' field in DB is a STRING
+      filters.AND.push({
+        category: { has: category }, // use 'equals' if it's a string, 'has' if it's an array
+      });
+
+      // 👉 If your Prisma schema defines `category` as a String:
+      // filters.AND.push({ category: { equals: category, mode: 'insensitive' } });
     }
 
     // Price range filters
@@ -389,4 +404,4 @@ const deleteProduct = async (req, res, next) => {
 };
 
 
-module.exports = { addProduct , searchProduct , productDetails , editProduct ,  getRandomProducts , getProductByVendor , deleteProduct};
+module.exports = { addProduct  , searchProduct , productDetails , editProduct ,  getRandomProducts , getProductByVendor , deleteProduct};

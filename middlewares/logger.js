@@ -82,7 +82,29 @@ const morganMiddleware = morgan((tokens, req, res) => {
 
     domain: req.hostname,       // <-- logs the domain
   });
-}, { stream: { write: message => logger.info(message) } });
+}, 
+{skip: (req, res) => {
+  // Skip static/log routes or homepage
+  if (req.url === '/' || req.url.startsWith('/logs')) return true;
+
+  // Skip OPTIONS preflight requests
+  if (req.method === 'OPTIONS') return true;
+
+  // Skip 304 Not Modified (cached responses)
+  if (res.statusCode === 304) return true;
+
+  // Log important successes (200, 201)
+  if (res.statusCode === 200 || res.statusCode === 201) return false;
+
+  // Always log client and server errors (4xx, 5xx)
+  if (res.statusCode >= 400) return false;
+
+  // Skip everything else
+  return true;
+}
+
+},
+{ stream: { write: message => logger.info(message) } });
 
 
 module.exports = { logger, morganMiddleware };

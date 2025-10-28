@@ -12,4 +12,14 @@ const fetchCategories = async (req, res , next) => {
     next(error)
   }
 };
-module.exports = { fetchCategories };
+
+const getProductCategoriesForAll = async(req,res,next) => {
+  try {
+    const categories = await prisma.predefinedProductCategory.findMany()
+    console.log(categories);
+    res.status(200).json({categories})
+  } catch (error) {
+    next(error)
+  }
+}
+module.exports = { fetchCategories , getProductCategoriesForAll };
