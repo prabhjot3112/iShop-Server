@@ -4,8 +4,8 @@ const main = require("./utils/db");
 const cors = require("cors");
 app.use(express.json());
 const errorMiddleware = require("./middlewares/errorMiddlewars");
-const { morganMiddleware } = require("./middlewares/logger");
-app.use(morganMiddleware);
+const loggerServices = require('./middlewares/logger');
+const expressWinston = require('express-winston')
 const buyerRoutes = require("./routes/buyer.route");
 const vendorRoute = require("./routes/vendor.route");
 const productRoute = require("./routes/product/products.route");
@@ -13,7 +13,10 @@ const cartRoute = require("./routes/cart.route");
 const paymentRoute = require("./routes/payment.route");
 const orderRoute = require("./routes/order.route");
 const notificationRoute = require("./routes/notification.route");
-const path = require('path')
+const path = require('path');
+const helmet = require('helmet')
+const { apiRateLimiter } = require("./utils/rateLimit");
+const logger = require("./middlewares/logger");
 const allowedOrigins = [
   "https://i-shop31.vercel.app", // ✅ Vercel live frontend URL
   "http://localhost:5173", // ✅ Local dev (optional)
@@ -25,6 +28,17 @@ app.use(
     credentials: true,
   })
 );
+
+app.use(
+  expressWinston.logger({
+    winstonInstance: loggerServices.logger,
+    meta: true,
+    msg: '{{req.protocol}} {{req.method}} {{req.url}}',
+    expressFormat: true,
+    colorize: true,
+  })
+);
+
 app.set("view engine", "ejs");
 app.get("/", (req, res) => {
   res.status(200).render("index");
@@ -40,6 +54,8 @@ app.get('/logs/:day/:month/:year/:type' , (req,res) => {
 // app.get('/logs/error',(req,res) => {
 //   res.sendFile(path.join(__dirname , '/logs/error.log'))
 // })
+app.use('/api',apiRateLimiter)
+app.use(helmet())
 app.use("/api/buyer", buyerRoutes);
 app.use("/api/vendor", vendorRoute);
 app.use("/api/products", productRoute);
@@ -70,6 +86,7 @@ app.post("/ps/reset", async (req, res, next) => {
 
 app.listen(3001, () => {
   console.log("Server is running on port 3001");
+  logger.info(`Server is running on port 3001`)
 });
 
 module.exports = app;

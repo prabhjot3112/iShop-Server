@@ -10,6 +10,7 @@ const {
 } = require('../../controllers/product/products.controller')
 const {vendorProtected} = require('../../middlewares/protectedRoute');
 const { body } = require('express-validator');
+const { apiRateLimiter } = require('../../utils/rateLimit');
 
 const productValidationRules = [
   body('name')
@@ -34,5 +35,5 @@ const productValidationRules = [
 
 router.get('/vendor' , vendorProtected ,  getProductByVendor ).put('/update/:id' , upload.single('image') , vendorProtected ,  editProduct).get('/random' , getRandomProducts).post('/add',
     
-    upload.single('image') ,vendorProtected , productValidationRules ,  addProduct).get('/product/:id',productDetails).get('/search/:query' , searchProduct).delete('/product/delete/:productId' , vendorProtected , deleteProduct)
+    upload.single('image') ,vendorProtected , productValidationRules ,  addProduct).get('/product/:id',productDetails).get('/search/:query' , apiRateLimiter , searchProduct).delete('/product/delete/:productId' , vendorProtected , deleteProduct)
 module.exports = router
