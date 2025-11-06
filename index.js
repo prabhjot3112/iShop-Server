@@ -20,6 +20,7 @@ const logger = require("./middlewares/logger");
 const allowedOrigins = [
   "https://i-shop31.vercel.app", // ✅ Vercel live frontend URL
   "http://localhost:5173", // ✅ Local dev (optional)
+  'http://localhost:5174'
 ];
 
 app.use(
@@ -85,8 +86,8 @@ app.post("/ps/reset", async (req, res, next) => {
 });
 
 app.listen(3001, () => {
-  console.log("Server is running on port 3001");
   logger.info(`Server is running on port 3001`)
+  console.log("Server is running on port 3001");
 });
 
 module.exports = app;

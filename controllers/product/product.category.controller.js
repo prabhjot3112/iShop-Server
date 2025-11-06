@@ -13,6 +13,30 @@ const fetchCategories = async (req, res , next) => {
   }
 };
 
+const searchProductByCategory = async (req, res, next) => {
+  try {
+    const { category } = req.params;
+    const searchTerm = `%${category.toLowerCase()}%`; // partial match
+
+    const products = await prisma.$queryRaw`
+      SELECT *
+      FROM "Product"
+      WHERE EXISTS (
+        SELECT 1
+        FROM unnest("category") AS cat
+        WHERE LOWER(cat) LIKE ${searchTerm}
+      )
+    `;
+
+    res.status(200).json({ products });
+  } catch (error) {
+    console.error(error.message);
+    next(error);
+  }
+};
+
+
+
 const getProductCategoriesForAll = async(req,res,next) => {
   try {
     const categories = await prisma.predefinedProductCategory.findMany()
@@ -22,4 +46,4 @@ const getProductCategoriesForAll = async(req,res,next) => {
     next(error)
   }
 }
-module.exports = { fetchCategories , getProductCategoriesForAll };
+module.exports = { fetchCategories , getProductCategoriesForAll, searchProductByCategory };

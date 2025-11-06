@@ -147,7 +147,7 @@ if (!buyer) {
         data: {
           cart: { connect: { id: cart.id } },
           product: { connect: { id: Number(productId) } },
-          quantity,
+          quantity:Number(quantity),
         },
       });
       return res.status(201).json(newItem);

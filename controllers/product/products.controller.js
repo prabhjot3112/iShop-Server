@@ -246,6 +246,7 @@ next(error)
 
 
 
+
 const searchProduct = async (req, res, next) => {
   try {
     const { query } = req.params;  // search term (optional)
@@ -404,4 +405,4 @@ const deleteProduct = async (req, res, next) => {
 };
 
 
-module.exports = { addProduct  , searchProduct , productDetails , editProduct ,  getRandomProducts , getProductByVendor , deleteProduct};
+module.exports = { addProduct  , searchProduct  ,  productDetails , editProduct ,  getRandomProducts , getProductByVendor , deleteProduct};
