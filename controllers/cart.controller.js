@@ -89,6 +89,8 @@ const addToCart = async (req, res) => {
     const buyerId = req.user.id
   const { productId, quantity } = req.body;
 
+  console.log(req.body)
+
   if (!buyerId || !productId || !quantity) {
     return res.status(400).json({ message: 'Missing buyerId, productId, or quantity' });
   }
@@ -176,7 +178,7 @@ const updateCartItem = async (req, res) => {
         items:{
           include:{
             product:{
-              select:{ stock:true , name:true }
+              select:{ stock:true , name:true , id:true}
             }
           }
         }
@@ -190,7 +192,8 @@ const updateCartItem = async (req, res) => {
     console.log('cart items are:',cart.items)
     for(let item of cart.items){
       console.log('item is:',item)
-      if(item.product.stock < quantity){
+      console.log('stock:',item.product.stock ,' quan:',quantity)
+      if(item.product.stock < quantity && item.product.id === productId){
         return res.status(400).json({ message: `No more stock available` });
       }
     }

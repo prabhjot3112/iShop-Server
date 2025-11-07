@@ -2,7 +2,8 @@
 const winston = require('winston')
 const DailyRotateFile = require('winston-daily-rotate-file')
 // import DailyRotateFile from 'winston-daily-rotate-file';
-const stripAnsi = require('strip-ansi').default
+const stripAnsi = require('strip-ansi');
+
 const { combine, timestamp, printf, colorize } = winston.format;
 
 class Logger {

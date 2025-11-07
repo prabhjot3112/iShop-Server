@@ -29,7 +29,7 @@
     "multer": "^2.0.2",
     "razorpay": "^2.9.6",
     "streamifier": "^0.1.1",
-    "strip-ansi": "^7.1.2",
+    "strip-ansi": "^6.0.1",
     "web-push": "^3.6.7",
     "winston": "^3.18.3",
     "winston-daily-rotate-file": "^5.0.0"
